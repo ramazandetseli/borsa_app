@@ -17,6 +17,11 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class kayitOlActivity extends AppCompatActivity {
 
@@ -40,60 +45,70 @@ public class kayitOlActivity extends AppCompatActivity {
             finish(); // geri dön
         });
         auth = FirebaseAuth.getInstance();
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+        btnKayitOl.setOnClickListener(view -> {
 
-    btnKayitOl.setOnClickListener(view -> {
-            String Isim=isim.getText().toString().trim();
-            String Soyisim=soyisim.getText().toString().trim();
-            String Email=email.getText().toString().trim();
-            String Sifre=sifre.getText().toString().trim();
-            String SifreTekrar=sifrekontrol.getText().toString().trim();
+            String Isim = isim.getText().toString().trim();
+            String Soyisim = soyisim.getText().toString().trim();
+            String Email = email.getText().toString().trim();
+            String Sifre = sifre.getText().toString().trim();
+            String SifreTekrar = sifrekontrol.getText().toString().trim();
 
-        if(!Sifre.equals(SifreTekrar)){
-            Toast.makeText(this, "Şifreler uyuşmuyor", Toast.LENGTH_SHORT).show();
-            return;
-        }
-            if(Isim.isEmpty() || Soyisim.isEmpty() || Email.isEmpty() || Sifre.isEmpty()){
+            if (!Sifre.equals(SifreTekrar)) {
+                Toast.makeText(this, "Şifreler uyuşmuyor", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (Isim.isEmpty() || Soyisim.isEmpty() || Email.isEmpty() || Sifre.isEmpty()) {
                 Toast.makeText(this, "Alanlar boş", Toast.LENGTH_SHORT).show();
                 return;
             }
 
+            auth.createUserWithEmailAndPassword(Email, Sifre)
+                    .addOnSuccessListener(authResult -> {
+
+                        FirebaseUser user = auth.getCurrentUser();
+                        if (user == null) return;
+
+                        String uid = user.getUid();
+
+                        // 🔥 REALTIME DATABASE
+                        DatabaseReference rtdbRef = FirebaseDatabase.getInstance()
+                                .getReference("users")
+                                .child(uid);
+
+                        rtdbRef.child("isim").setValue(Isim);
+                        rtdbRef.child("soyisim").setValue(Soyisim);
+                        rtdbRef.child("email").setValue(Email);
+
+                        // 🔥 FIRESTORE
+                        Map<String, Object> userData = new HashMap<>();
+                        userData.put("email", Email);
+                        userData.put("balance", 0.0);
+                        userData.put("createdAt", FieldValue.serverTimestamp());
+
+                        FirebaseFirestore.getInstance()
+                                .collection("users")
+                                .document(uid)
+                                .set(userData)
+                                .addOnSuccessListener(aVoid -> {
+
+                                    Toast.makeText(this,
+                                            "Kayıt başarılı, giriş yapabilirsiniz",
+                                            Toast.LENGTH_LONG).show();
+
+                                    startActivity(new Intent(this, GirisActivity.class));
+                                    finish();
+                                });
+                    })
+                    .addOnFailureListener(e ->
+                            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show()
+                    );
+        });
 
 
-        auth.createUserWithEmailAndPassword(Email, Sifre)
-                .addOnSuccessListener(authResult -> {
-
-                    FirebaseUser user = auth.getCurrentUser();
-                    if (user == null) {
-                        Toast.makeText(this, "Kullanıcı oluşturulamadı", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    String uid = user.getUid();
-
-                    DatabaseReference ref = FirebaseDatabase
-                            .getInstance()
-                            .getReference("users")
-                            .child(uid);
-
-                    ref.child("isim").setValue(Isim);
-                    ref.child("soyisim").setValue(Soyisim);
-                    ref.child("email").setValue(Email)
-                            .addOnSuccessListener(unused -> {
-                                startActivity(new Intent(this, GirisActivity.class));
-                                finish();
-                                Toast.makeText(this, "Kayıt başarıyla oluşturuldu\nGiriş yapabilirsiniz", Toast.LENGTH_LONG).show();
-                            })
-                            .addOnFailureListener(e ->
-                                    Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show()
-                            );
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show()
-                );
-
-
-    });
 
 
 

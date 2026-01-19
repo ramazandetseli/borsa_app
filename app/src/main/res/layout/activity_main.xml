@@ -15,8 +15,9 @@
         android:id="@+id/HisseButtonMenu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="180dp"
         android:backgroundTint="#1E88E5"
-        android:layout_marginTop="180dp">
+        android:text="Hisseler">
 
     </Button>
 
@@ -25,19 +26,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:backgroundTint="#1E88E5"
-        >
+        android:text="Ara">
 
     </Button>
+
     <Button
         android:id="@+id/ProfilButtonMenu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:backgroundTint="#1E88E5"
-        >
+        android:text="Profil">
 
     </Button>
 
 
 
 </LinearLayout>
-

@@ -27,12 +27,20 @@ public class MainActivity extends AppCompatActivity {
         btnProfil=findViewById(R.id.ProfilButtonMenu);
 
         btnHisse.setOnClickListener(view -> {
-
+            Intent intent=new Intent(this,HisseMenu.class);
+            startActivity(intent);
         });
-
+        btnAra.setOnClickListener(view -> {
+            Intent intent=new Intent(this,AraMenu.class);
+            startActivity(intent);
+        });
+        btnProfil.setOnClickListener(view -> {
+            Intent intent=new Intent(this,ProfilMenu.class);
+            startActivity(intent);
+        });
 
 
 
     }
 
-}   
+}

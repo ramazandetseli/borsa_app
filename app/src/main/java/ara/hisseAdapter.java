@@ -34,6 +34,7 @@ public class hisseAdapter extends RecyclerView.Adapter<hisseAdapter.HisseVH> {
     @NonNull
     @Override
     public HisseVH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_hisse, parent, false);
         return new HisseVH(v);
@@ -41,9 +42,15 @@ public class hisseAdapter extends RecyclerView.Adapter<hisseAdapter.HisseVH> {
 
     @Override
     public void onBindViewHolder(@NonNull HisseVH holder, int position) {
+
         hisseModel h = gosterilenListe.get(position);
-        holder.tvSymbol.setText(h.symbol);
-        holder.tvName.setText(h.name);
+        if (h != null && h.symbol != null) {
+            holder.tvSymbol.setText(h.symbol);
+            holder.tvName.setText(h.name != null ? h.name : h.symbol);
+        } else {
+            holder.tvSymbol.setText("N/A");
+            holder.tvName.setText("Bilinmeyen");
+        }
 
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {

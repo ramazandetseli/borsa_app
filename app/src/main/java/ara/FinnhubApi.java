@@ -10,4 +10,11 @@ public interface FinnhubApi {
             @Query("exchange") String exchange,
             @Query("token") String apiKey
     );
+
+
+    @GET("api/v1/quote")
+    Call<QuoteResponse> getQuote(
+            @Query("symbol") String symbol,
+            @Query("token") String apiKey
+    );
 }

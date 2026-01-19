@@ -15,7 +15,10 @@
         android:theme="@style/Theme.Borsa_app"
         tools:targetApi="31">
         <activity
-            android:name="ara.hisseDetay"
+            android:name="HisselerIslem.hisseSatisActivity"
+            android:exported="false" />
+        <activity
+            android:name="HisselerIslem.hisseAlisActivity"
             android:exported="false" />
         <activity
             android:name="ara.hisseDetay"
@@ -37,9 +40,6 @@
             android:exported="false" />
         <activity
             android:name=".GirisActivity"
-            android:exported="true" />
-        <activity
-            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -47,6 +47,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".MainActivity"
+            android:exported="true" />
     </application>
 
 </manifest>
