@@ -3,12 +3,12 @@ package Hisseler;
 public class hisseGorunum {
 
     public String symbol;
-    public String name;
+    public long  lotValue;
     public double price;
 
-    public hisseGorunum(String symbol, String name, double price) {
+    public hisseGorunum(String symbol, long lot, double price) {
         this.symbol = symbol;
-        this.name = name;
+        this.lotValue = lot;
         this.price = price;
     }
 }

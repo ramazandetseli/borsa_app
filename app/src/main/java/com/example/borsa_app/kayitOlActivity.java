@@ -14,8 +14,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.DatabaseReference;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -74,17 +73,9 @@ public class kayitOlActivity extends AppCompatActivity {
 
                         String uid = user.getUid();
 
-                        // 🔥 REALTIME DATABASE
-                        DatabaseReference rtdbRef = FirebaseDatabase.getInstance()
-                                .getReference("users")
-                                .child(uid);
-
-                        rtdbRef.child("isim").setValue(Isim);
-                        rtdbRef.child("soyisim").setValue(Soyisim);
-                        rtdbRef.child("email").setValue(Email);
-
-                        // 🔥 FIRESTORE
                         Map<String, Object> userData = new HashMap<>();
+                        userData.put("isim", Isim);
+                        userData.put("soyisim", Soyisim);
                         userData.put("email", Email);
                         userData.put("balance", 0.0);
                         userData.put("createdAt", FieldValue.serverTimestamp());

@@ -29,8 +29,8 @@ public class hisseGorunumAdapter
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            txtSymbol = itemView.findViewById(R.id.txtSymbol);
-            txtPrice  = itemView.findViewById(R.id.txtPrice);
+            txtSymbol = itemView.findViewById(R.id.tvSymbol);
+            txtPrice  = itemView.findViewById(R.id.tvName);
         }
     }
 

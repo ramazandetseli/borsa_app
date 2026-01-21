@@ -63,11 +63,9 @@ public class hisseDetay extends AppCompatActivity {
                             price = response.body().currentPrice;
                             double min = response.body().low;
                             double max = response.body().high;
-
                             TvMin.setText(String.valueOf(min));
                             TvMax.setText(String.valueOf(max));
                             changePrice.setText(String.valueOf(price));
-                            TvVolume.setText("—");
                         }
                     }
 

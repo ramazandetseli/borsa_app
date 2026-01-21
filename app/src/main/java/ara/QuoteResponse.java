@@ -10,4 +10,6 @@ public class QuoteResponse {
 
     @SerializedName("l")
     public double low;
+
+
 }

@@ -14,7 +14,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.borsa_app.R;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -30,6 +32,8 @@ public class hisseAlisActivity extends AppCompatActivity {
     EditText lotSayisi;
 
     Button stnAlBtn;
+
+    private double total;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +72,7 @@ public class hisseAlisActivity extends AppCompatActivity {
                 }
 
                 int lot = Integer.parseInt(s.toString());
-                double total = lot * price;
+                total = lot * price;
                 if(total>0){
                     stnAlBtn.setEnabled(true);
                 }
@@ -79,56 +83,92 @@ public class hisseAlisActivity extends AppCompatActivity {
 
 
         stnAlBtn.setOnClickListener(view -> {
-            int lot = Integer.parseInt(lotSayisi.getText().toString());
-            double total = lot * price;
 
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
-            String uid = FirebaseAuth.getInstance().getUid();
+                FirebaseUser user=FirebaseAuth.getInstance().getCurrentUser();
+                if(user==null) return;
 
-            Map<String, Object> tx = new HashMap<>();
-            tx.put("symbol", symbol);
-            tx.put("type", "BUY");
-            tx.put("lot", lot);
-            tx.put("price", price);
-            tx.put("total", total);
-            tx.put("createdAt", FieldValue.serverTimestamp());
+                String uid=user.getUid();
+                FirebaseFirestore db=FirebaseFirestore.getInstance();
 
-            db.collection("users")
-                    .document(uid)
-                    .collection("transactions")
-                    .add(tx)
-                    .addOnSuccessListener(doc -> {
+                DocumentReference userRef=db.collection("users").document(uid);
+
+                db.runTransaction(transaction -> {
+                    DocumentSnapshot snapshot=transaction.get(userRef);
+
+                    Double balance=snapshot.getDouble("balance");
+                    if(balance==null) balance=0.0;
+
+                    if(balance< total){
+                        throw new RuntimeException("Yetersiz Bakiye");
+                    }
+
+                    transaction.update(userRef, "balance", balance - total);
+
+                    return null;
+
+                }).addOnSuccessListener(unused ->{
+                    int lot = Integer.parseInt(lotSayisi.getText().toString());
+                    double total = lot * price;
+
+                    if (user == null) {
+                        Toast.makeText(this, "Lütfen giriş yapın", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+
+
+                    Map<String, Object> tx = new HashMap<>();
+                    tx.put("symbol", symbol);
+                    tx.put("type", "BUY");
+                    tx.put("lot", lot);
+                    tx.put("price", price);
+                    tx.put("total", total);
+                    tx.put("createdAt", FieldValue.serverTimestamp());
+
+                    db.collection("users")
+                            .document(uid)
+                            .collection("transactions")
+                            .add(tx);
+
+                    // 2️⃣ PORTFÖY (ATOMIC)
+                    DocumentReference ref = db.collection("users")
+                            .document(uid)
+                            .collection("portfolio")
+                            .document(symbol);
+                    db.runTransaction(transaction -> {
+                        DocumentSnapshot snap = transaction.get(ref);
+
+                        long newLot;
+                        double newAvg;
+
+                        if (snap.exists()) {
+                            long oldLot = snap.getLong("lot");
+                            double oldAvg = snap.getDouble("avgPrice");
+
+                            newLot = oldLot + lot;
+                            newAvg = ((oldLot * oldAvg) + (lot * price)) / newLot;
+                        } else {
+                            newLot = lot;
+                            newAvg = price;
+                        }
+
+                        Map<String, Object> data = new HashMap<>();
+                        data.put("lot", newLot);
+                        data.put("avgPrice", newAvg);
+
+                        transaction.set(ref, data);
+                        return null;
+                    }).addOnSuccessListener(aVoid -> {
                         Toast.makeText(this, "Alış başarılı", Toast.LENGTH_SHORT).show();
                         finish();
-                    })
-                    .addOnFailureListener(e ->
+                    }).addOnFailureListener(e ->
                             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show()
                     );
+                });
 
 
-            DocumentReference ref = db.collection("users")
-                    .document(uid)
-                    .collection("portfolio")
-                    .document(symbol);
 
-            ref.get().addOnSuccessListener(doc -> {
 
-                if (doc.exists()) {
-                    long oldLot = doc.getLong("lot");
-                    double oldAvg = doc.getDouble("avgPrice");
-
-                    long newLot = oldLot + lot;
-                    double newAvg = ((oldLot * oldAvg) + (lot * price)) / newLot;
-
-                    ref.update("lot", newLot, "avgPrice", newAvg);
-
-                } else {
-                    Map<String, Object> data = new HashMap<>();
-                    data.put("lot", lot);
-                    data.put("avgPrice", price);
-                    ref.set(data);
-                }
-            });
 
         });
 

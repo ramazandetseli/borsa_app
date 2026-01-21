@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -9,31 +10,41 @@
     <!-- 🔝 TOOLBAR -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/backHissePortfoyden"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:background="#1E88E5"
         android:paddingTop="12dp"
         android:paddingBottom="12dp"
-        android:background="#1E88E5"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:navigationIcon="@drawable/baseline_arrow_back_24"
         app:title="Portföyüm"
-        app:titleTextColor="@android:color/white" />
+        app:titleTextColor="@android:color/white">
+
+        <ImageButton
+            android:id="@+id/btnRefresh"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="yenile"
+            android:padding="8dp"
+            android:src="@drawable/ic_arrow"
+            android:tint="@android:color/white"/>
+    </com.google.android.material.appbar.MaterialToolbar>
 
     <!-- 💳 BAKİYE KARTI -->
     <androidx.cardview.widget.CardView
         android:id="@+id/bakiyeCard"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
+        android:layout_margin="16dp"
         app:cardCornerRadius="16dp"
         app:cardElevation="6dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/backHissePortfoyden"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/backHissePortfoyden">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -46,7 +57,7 @@
                 android:layout_height="wrap_content"
                 android:text="Toplam Bakiye"
                 android:textColor="#757575"
-                android:textSize="14sp" />
+                android:textSize="14sp"/>
 
             <TextView
                 android:id="@+id/bakiyeHisseMenu"
@@ -56,42 +67,48 @@
                 android:text="₺0,00"
                 android:textColor="#2E7D32"
                 android:textSize="28sp"
-                android:textStyle="bold" />
-
+                android:textStyle="bold"/>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- 📋 RECYCLERVIEW (Hisse Listesi) -->
+    <!-- 📋 RECYCLERVIEW -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:clipToPadding="false"
-        app:layout_constraintBottom_toTopOf="@+id/btnIslemMenuGit"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/bakiyeCard"
-        tools:listitem="@layout/item_hisse" />
+        app:layout_constraintBottom_toTopOf="@id/btnIslemMenuGit"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:listitem="@layout/item_hisse"/>
 
+    <!-- ⏳ PROGRESS BAR (ORTADA OVERLAY) -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="@id/recyclerView"
+        app:layout_constraintBottom_toBottomOf="@id/recyclerView"
+        app:layout_constraintStart_toStartOf="@id/recyclerView"
+        app:layout_constraintEnd_toEndOf="@id/recyclerView"/>
 
     <!-- 🚀 İŞLEM MENÜSÜ BUTONU -->
     <Button
         android:id="@+id/btnIslemMenuGit"
         android:layout_width="0dp"
         android:layout_height="60dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_margin="16dp"
         android:backgroundTint="#1E88E5"
         android:text="İşlem Menüsüne Git"
         android:textAllCaps="false"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

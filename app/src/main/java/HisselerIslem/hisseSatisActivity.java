@@ -17,7 +17,9 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.borsa_app.R;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -33,6 +35,8 @@ public class hisseSatisActivity extends AppCompatActivity {
     EditText lotSayisi;
 
     Button stnSatBtn;
+
+    public double total;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,7 +73,7 @@ public class hisseSatisActivity extends AppCompatActivity {
                 }
 
                 int lot = Integer.parseInt(s.toString());
-                double total = lot * price;
+                total = lot * price;
                 if(total>0){
                     stnSatBtn.setEnabled(true);
                 }
@@ -80,59 +84,88 @@ public class hisseSatisActivity extends AppCompatActivity {
 
 
         stnSatBtn.setOnClickListener(view -> {
-            int lot = Integer.parseInt(lotSayisi.getText().toString());
-            double total = lot * price;
 
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
-            String uid = FirebaseAuth.getInstance().getUid();
 
-            Map<String, Object> tx = new HashMap<>();
-            tx.put("symbol", symbol);
-            tx.put("type", "SELL");
-            tx.put("lot", lot);
-            tx.put("price", price);
-            tx.put("total", total);
-            tx.put("createdAt", FieldValue.serverTimestamp());
 
-            db.collection("users")
-                    .document(uid)
-                    .collection("transactions")
-                    .add(tx)
-                    .addOnSuccessListener(doc -> {
-                        Toast.makeText(this, "Satış başarılı", Toast.LENGTH_SHORT).show();
-                        finish();
-                    })
-                    .addOnFailureListener(e ->
-                            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show()
-                    );
+            FirebaseUser user=FirebaseAuth.getInstance().getCurrentUser();
+            if(user==null) return;
 
-            DocumentReference ref = db.collection("users")
-                    .document(uid)
-                    .collection("portfolio")
-                    .document(symbol);
+            String uid=user.getUid();
+            FirebaseFirestore db=FirebaseFirestore.getInstance();
 
-            ref.get().addOnSuccessListener(doc -> {
+            DocumentReference userRef=db.collection("users").document(uid);
 
-                if (!doc.exists()) {
-                    Toast.makeText(this, "Bu hisse yok", Toast.LENGTH_SHORT).show();
-                    return;
+            db.runTransaction(portfolio -> {
+                DocumentSnapshot snapshot=portfolio.get(userRef);
+
+                int lotControl= (int) snapshot.get("lot");
+
+
+                if(lotControl< total){
+                    throw new RuntimeException("Yetersiz Bakiye");
                 }
 
-                long currentLot = doc.getLong("lot");
+                portfolio.update(userRef, "lot", lotControl + total);
 
-                if (currentLot < lot) {
-                    Toast.makeText(this, "Yetersiz lot", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+                return null;
+            }).addOnSuccessListener(unused ->{
+                int lot = Integer.parseInt(lotSayisi.getText().toString());
+                double total = lot * price;
 
-                long newLot = currentLot - lot;
 
-                if (newLot == 0) {
-                    ref.delete(); // hisse tamamen satıldı
-                } else {
-                    ref.update("lot", newLot);
-                }
+
+                Map<String, Object> tx = new HashMap<>();
+                tx.put("symbol", symbol);
+                tx.put("type", "SELL");
+                tx.put("lot", lot);
+                tx.put("price", price);
+                tx.put("total", total);
+                tx.put("createdAt", FieldValue.serverTimestamp());
+
+                db.collection("users")
+                        .document(uid)
+                        .collection("transactions")
+                        .add(tx)
+                        .addOnSuccessListener(doc -> {
+                            Toast.makeText(this, "Satış başarılı", Toast.LENGTH_SHORT).show();
+                            finish();
+                        })
+                        .addOnFailureListener(e ->
+                                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show()
+                        );
+
+                DocumentReference ref = db.collection("users")
+                        .document(uid)
+                        .collection("portfolio")
+                        .document(symbol);
+
+                ref.get().addOnSuccessListener(doc -> {
+
+                    if (!doc.exists()) {
+                        Toast.makeText(this, "Bu hisse yok", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    long currentLot = doc.getLong("lot");
+
+                    if (currentLot < lot) {
+                        Toast.makeText(this, "Yetersiz lot", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    long newLot = currentLot - lot;
+
+                    if (newLot == 0) {
+                        ref.delete(); // hisse tamamen satıldı
+                    } else {
+                        ref.update("lot", newLot);
+                    }
+                });
             });
+
+
+
+
         });
     }
 }

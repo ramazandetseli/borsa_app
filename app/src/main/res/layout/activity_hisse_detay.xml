@@ -20,7 +20,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:navigationIcon="@drawable/baseline_arrow_back_24"
         app:titleTextColor="@android:color/white"
-        tools:title="Geri dön"
+        app:title="Geri Dön"
         android:backgroundTint="#1E88E5"/>
 
 

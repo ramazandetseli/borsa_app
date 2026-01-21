@@ -1,16 +1,20 @@
 package ara;
 
+import com.example.borsa_app.R;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.borsa_app.R;
+
 import com.google.android.material.appbar.MaterialToolbar;
 
 import java.util.ArrayList;
@@ -25,11 +29,15 @@ public class AraMenu extends AppCompatActivity {
     EditText etSearch;
     RecyclerView rvList;
     hisseAdapter adapter;
-
+    ProgressBar progressBar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ara_menu);
+
+        progressBar = findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.VISIBLE);
 
         MaterialToolbar toolbar = findViewById(R.id.backMenuAramadan);
         setSupportActionBar(toolbar);
@@ -46,6 +54,7 @@ public class AraMenu extends AppCompatActivity {
                     @Override
                     public void onResponse(Call<List<hisseModel>> call,
                                            Response<List<hisseModel>> response) {
+                        progressBar.setVisibility(View.GONE);
 
                         if (response.isSuccessful() && response.body() != null) {
 
@@ -56,6 +65,13 @@ public class AraMenu extends AppCompatActivity {
 
                             adapter = new hisseAdapter(liste);
                             rvList.setAdapter(adapter);
+
+                            adapter.setOnHisseClickListener(hisse -> {
+                                Intent intent = new Intent(AraMenu.this, hisseDetay.class);
+                                intent.putExtra("symbol", hisse.symbol);
+                                intent.putExtra("name", hisse.name);
+                                startActivity(intent);
+                            });
 
                             etSearch.addTextChangedListener(new TextWatcher() {
                                 @Override public void beforeTextChanged(CharSequence s,int a,int b,int c){}
@@ -68,12 +84,7 @@ public class AraMenu extends AppCompatActivity {
                             });
                         }
                         //tıklanma olayı
-                        adapter.setOnHisseClickListener(hisse -> {
-                            Intent intent = new Intent(AraMenu.this, hisseDetay.class);
-                            intent.putExtra("symbol", hisse.symbol);
-                            intent.putExtra("name", hisse.name);
-                            startActivity(intent);
-                        });
+
 
                     }
 
