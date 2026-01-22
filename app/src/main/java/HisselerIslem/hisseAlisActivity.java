@@ -10,6 +10,9 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.example.borsa_app.R;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -33,8 +36,7 @@ public class hisseAlisActivity extends AppCompatActivity {
 
     Button stnAlBtn;
 
-    private double total;
-
+    public double total;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,12 +47,11 @@ public class hisseAlisActivity extends AppCompatActivity {
         value = findViewById(R.id.txtFiyat);
         lotSayisi = findViewById(R.id.edtLot);
         txttotal = findViewById(R.id.txtToplam);
-        stnAlBtn=findViewById(R.id.btnBuy);
+        stnAlBtn = findViewById(R.id.btnBuy);
         stnAlBtn.setEnabled(false);
         MaterialToolbar toolbar = findViewById(R.id.toolbarAlis);
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(v -> finish());
-
         // Intent verileri
         symbol = getIntent().getStringExtra("symbol");
         price = getIntent().getDoubleExtra("price", 0.0);
@@ -70,126 +71,108 @@ public class hisseAlisActivity extends AppCompatActivity {
                     stnAlBtn.setEnabled(false);
                     return;
                 }
-
-                int lot = Integer.parseInt(s.toString());
-                total = lot * price;
-                if(total>0){
-                    stnAlBtn.setEnabled(true);
+                try {
+                    int lot = Integer.parseInt(s.toString());
+                    total = lot * price;
+                    if(total>0){
+                        stnAlBtn.setEnabled(true);
+                    } else {
+                        stnAlBtn.setEnabled(false);
+                    }
+                    txttotal.setText("Toplam: " + String.format("%,.2f", total) + " ₺");
+                } catch (NumberFormatException e) {
+                    txttotal.setText("Toplam: 0 ₺");
+                    stnAlBtn.setEnabled(false);
                 }
-
-                txttotal.setText("Toplam: " + String.format("%,.2f", total) + " ₺");
             }
         });
 
-
         stnAlBtn.setOnClickListener(view -> {
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user == null) {
+                Toast.makeText(this, "Lütfen giriş yapın", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-                FirebaseUser user=FirebaseAuth.getInstance().getCurrentUser();
-                if(user==null) return;
+            String uid = user.getUid();
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-                String uid=user.getUid();
-                FirebaseFirestore db=FirebaseFirestore.getInstance();
+            int lotToBuy;
+            try {
+                lotToBuy = Integer.parseInt(lotSayisi.getText().toString());
+                if (lotToBuy <= 0) {
+                    Toast.makeText(this, "Lütfen geçerli bir lot sayısı girin", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                Toast.makeText(this, "Lütfen geçerli bir lot sayısı girin", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-                DocumentReference userRef=db.collection("users").document(uid);
+            double totalCost = lotToBuy * price;
 
-                db.runTransaction(transaction -> {
-                    DocumentSnapshot snapshot=transaction.get(userRef);
+            DocumentReference userRef = db.collection("users").document(uid);
+            DocumentReference portfolioRef = userRef.collection("portfolio").document(symbol);
 
-                    Double balance=snapshot.getDouble("balance");
-                    if(balance==null) balance=0.0;
+            db.runTransaction(transaction -> {
+                DocumentSnapshot userSnapshot = transaction.get(userRef);
+                DocumentSnapshot portfolioSnapshot = transaction.get(portfolioRef);
 
-                    if(balance< total){
-                        throw new RuntimeException("Yetersiz Bakiye");
-                    }
+                Double currentBalance = userSnapshot.getDouble("balance");
+                if (currentBalance == null) {
+                    currentBalance = 0.0;
+                }
 
-                    transaction.update(userRef, "balance", balance - total);
+                if (currentBalance < totalCost) {
+                    throw new RuntimeException("Yetersiz bakiye. Mevcut bakiye: " + String.format("%,.2f", currentBalance) + " ₺");
+                }
 
-                    return null;
+                long newLot;
+                double newAvgPrice;
 
-                }).addOnSuccessListener(unused ->{
-                    int lot = Integer.parseInt(lotSayisi.getText().toString());
-                    double total = lot * price;
+                if (portfolioSnapshot.exists()) {
+                    long oldLot = portfolioSnapshot.getLong("lot");
+                    double oldAvgPrice = portfolioSnapshot.getDouble("avgPrice");
+                    newLot = oldLot + lotToBuy;
+                    newAvgPrice = ((oldLot * oldAvgPrice) + (lotToBuy * price)) / newLot;
+                } else {
+                    newLot = lotToBuy;
+                    newAvgPrice = price;
+                }
 
-                    if (user == null) {
-                        Toast.makeText(this, "Lütfen giriş yapın", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
+                Map<String, Object> portfolioData = new HashMap<>();
+                portfolioData.put("lot", newLot);
+                portfolioData.put("avgPrice", newAvgPrice);
+                transaction.set(portfolioRef, portfolioData);
 
+                double newBalance = currentBalance - totalCost;
+                transaction.update(userRef, "balance", newBalance);
 
+                return null;
+            }).addOnSuccessListener(aVoid -> {
+                Map<String, Object> tx = new HashMap<>();
+                tx.put("symbol", symbol);
+                tx.put("type", "BUY");
+                tx.put("lot", lotToBuy);
+                tx.put("price", price);
+                tx.put("total", totalCost);
+                tx.put("createdAt", FieldValue.serverTimestamp());
 
-                    Map<String, Object> tx = new HashMap<>();
-                    tx.put("symbol", symbol);
-                    tx.put("type", "BUY");
-                    tx.put("lot", lot);
-                    tx.put("price", price);
-                    tx.put("total", total);
-                    tx.put("createdAt", FieldValue.serverTimestamp());
-
-                    db.collection("users")
-                            .document(uid)
-                            .collection("transactions")
-                            .add(tx);
-
-                    // 2️⃣ PORTFÖY (ATOMIC)
-                    DocumentReference ref = db.collection("users")
-                            .document(uid)
-                            .collection("portfolio")
-                            .document(symbol);
-                    db.runTransaction(transaction -> {
-                        DocumentSnapshot snap = transaction.get(ref);
-
-                        long newLot;
-                        double newAvg;
-
-                        if (snap.exists()) {
-                            long oldLot = snap.getLong("lot");
-                            double oldAvg = snap.getDouble("avgPrice");
-
-                            newLot = oldLot + lot;
-                            newAvg = ((oldLot * oldAvg) + (lot * price)) / newLot;
-                        } else {
-                            newLot = lot;
-                            newAvg = price;
-                        }
-
-                        Map<String, Object> data = new HashMap<>();
-                        data.put("lot", newLot);
-                        data.put("avgPrice", newAvg);
-
-                        transaction.set(ref, data);
-                        return null;
-                    }).addOnSuccessListener(aVoid -> {
-                        Toast.makeText(this, "Alış başarılı", Toast.LENGTH_SHORT).show();
-                        finish();
-                    }).addOnFailureListener(e ->
-                            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show()
-                    );
-                });
-
-
-
-
-
+                db.collection("users")
+                        .document(uid)
+                        .collection("transactions")
+                        .add(tx)
+                        .addOnSuccessListener(docRef -> {
+                            Toast.makeText(hisseAlisActivity.this, "Alış başarılı", Toast.LENGTH_SHORT).show();
+                            finish();
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(hisseAlisActivity.this, "Alış başarılı ancak işlem kaydı oluşturulamadı.", Toast.LENGTH_LONG).show();
+                            finish();
+                        });
+            }).addOnFailureListener(e -> {
+                Toast.makeText(hisseAlisActivity.this, "Alış işlemi başarısız: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            });
         });
-
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

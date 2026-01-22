@@ -71,101 +71,108 @@ public class hisseSatisActivity extends AppCompatActivity {
                     stnSatBtn.setEnabled(false);
                     return;
                 }
-
-                int lot = Integer.parseInt(s.toString());
-                total = lot * price;
-                if(total>0){
-                    stnSatBtn.setEnabled(true);
+                try {
+                    int lot = Integer.parseInt(s.toString());
+                    total = lot * price;
+                    if(total>0){
+                        stnSatBtn.setEnabled(true);
+                    } else {
+                        stnSatBtn.setEnabled(false);
+                    }
+                    txttotal.setText("Toplam: " + String.format("%,.2f", total) + " ₺");
+                } catch (NumberFormatException e) {
+                    txttotal.setText("Toplam: 0 ₺");
+                    stnSatBtn.setEnabled(false);
                 }
-
-                txttotal.setText("Toplam: " + String.format("%,.2f", total) + " ₺");
             }
         });
 
-
         stnSatBtn.setOnClickListener(view -> {
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            if (user == null) {
+                Toast.makeText(this, "Lütfen giriş yapın", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
+            String uid = user.getUid();
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+            int lotToSell;
+            try {
+                lotToSell = Integer.parseInt(lotSayisi.getText().toString());
+                if (lotToSell <= 0) {
+                    Toast.makeText(this, "Lütfen geçerli bir lot sayısı girin", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                Toast.makeText(this, "Lütfen geçerli bir lot sayısı girin", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-            FirebaseUser user=FirebaseAuth.getInstance().getCurrentUser();
-            if(user==null) return;
+            double totalSaleValue = lotToSell * price;
 
-            String uid=user.getUid();
-            FirebaseFirestore db=FirebaseFirestore.getInstance();
+            DocumentReference userRef = db.collection("users").document(uid);
+            DocumentReference portfolioRef = userRef.collection("portfolio").document(symbol);
 
-            DocumentReference userRef=db.collection("users").document(uid);
+            db.runTransaction(transaction -> {
+                DocumentSnapshot userSnapshot = transaction.get(userRef);
+                DocumentSnapshot portfolioSnapshot = transaction.get(portfolioRef);
 
-            db.runTransaction(portfolio -> {
-                DocumentSnapshot snapshot=portfolio.get(userRef);
-
-                int lotControl= (int) snapshot.get("lot");
-
-
-                if(lotControl< total){
-                    throw new RuntimeException("Yetersiz Bakiye");
+                if (!portfolioSnapshot.exists()) {
+                    throw new RuntimeException("Satılacak hisse portföyünüzde bulunmuyor.");
                 }
 
-                portfolio.update(userRef, "lot", lotControl + total);
+                Long currentLotVal = portfolioSnapshot.getLong("lot");
+                if (currentLotVal == null) {
+                    throw new RuntimeException("Portföydeki hisse lot bilgisi bozuk.");
+                }
+                long currentLot = currentLotVal;
+
+                if (currentLot < lotToSell) {
+                    throw new RuntimeException("Yetersiz lot. Sahip olduğunuz lot: " + currentLot);
+                }
+
+                Double currentBalance = userSnapshot.getDouble("balance");
+                if (currentBalance == null) {
+                    currentBalance = 0.0;
+                }
+
+                long newLot = currentLot - lotToSell;
+                double newBalance = currentBalance + totalSaleValue;
+
+                if (newLot == 0) {
+                    transaction.delete(portfolioRef);
+                } else {
+                    transaction.update(portfolioRef, "lot", newLot);
+                }
+                
+                transaction.update(userRef, "balance", newBalance);
 
                 return null;
-            }).addOnSuccessListener(unused ->{
-                int lot = Integer.parseInt(lotSayisi.getText().toString());
-                double total = lot * price;
-
-
-
+            }).addOnSuccessListener(aVoid -> {
                 Map<String, Object> tx = new HashMap<>();
                 tx.put("symbol", symbol);
                 tx.put("type", "SELL");
-                tx.put("lot", lot);
+                tx.put("lot", lotToSell);
                 tx.put("price", price);
-                tx.put("total", total);
+                tx.put("total", totalSaleValue);
                 tx.put("createdAt", FieldValue.serverTimestamp());
 
                 db.collection("users")
                         .document(uid)
                         .collection("transactions")
                         .add(tx)
-                        .addOnSuccessListener(doc -> {
-                            Toast.makeText(this, "Satış başarılı", Toast.LENGTH_SHORT).show();
+                        .addOnSuccessListener(docRef -> {
+                            Toast.makeText(hisseSatisActivity.this, "Satış başarılı", Toast.LENGTH_SHORT).show();
                             finish();
                         })
-                        .addOnFailureListener(e ->
-                                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show()
-                        );
-
-                DocumentReference ref = db.collection("users")
-                        .document(uid)
-                        .collection("portfolio")
-                        .document(symbol);
-
-                ref.get().addOnSuccessListener(doc -> {
-
-                    if (!doc.exists()) {
-                        Toast.makeText(this, "Bu hisse yok", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    long currentLot = doc.getLong("lot");
-
-                    if (currentLot < lot) {
-                        Toast.makeText(this, "Yetersiz lot", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    long newLot = currentLot - lot;
-
-                    if (newLot == 0) {
-                        ref.delete(); // hisse tamamen satıldı
-                    } else {
-                        ref.update("lot", newLot);
-                    }
-                });
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(hisseSatisActivity.this, "Satış başarılı ancak işlem kaydı oluşturulamadı.", Toast.LENGTH_LONG).show();
+                            finish();
+                        });
+            }).addOnFailureListener(e -> {
+                Toast.makeText(hisseSatisActivity.this, "Satış işlemi başarısız: " + e.getMessage(), Toast.LENGTH_LONG).show();
             });
-
-
-
-
         });
     }
 }

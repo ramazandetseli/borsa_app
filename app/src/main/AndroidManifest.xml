@@ -33,6 +33,21 @@
             android:name="ara.AraMenu"
             android:exported="true" />
         <activity
+            android:name="profil.SifreDegistirActivity"
+            android:exported="false" />
+        <activity
+            android:name="profil.IslemGecmisiActivity"
+            android:exported="false" />
+        <activity
+            android:name="profil.PortfoyActivity"
+            android:exported="false" />
+        <activity
+            android:name="profil.ParaCekActivity"
+            android:exported="false" />
+        <activity
+            android:name="profil.ParaYatirActivity"
+            android:exported="false" />
+        <activity
             android:name=".kayitOlActivity"
             android:exported="false" />
         <activity
