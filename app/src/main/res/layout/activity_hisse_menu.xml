@@ -31,7 +31,7 @@
             android:contentDescription="yenile"
             android:padding="8dp"
             app:navigationIcon="@drawable/baseline_arrow_back_24"
-            android:tint="@android:color/white"/>
+            app:tint="@android:color/white"/>
     </com.google.android.material.appbar.MaterialToolbar>
 
     <!-- 💳 BAKİYE KARTI -->
