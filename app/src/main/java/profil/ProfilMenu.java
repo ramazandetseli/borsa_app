@@ -3,6 +3,7 @@ package profil;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -29,7 +30,7 @@ import Hisseler.HisseMenu;
 
 public class ProfilMenu extends AppCompatActivity {
 
-    private TextView menuPortfoy, menuIslemGecmisi, profileName, profileEmail, balanceValue;
+    private TextView menuPortfoy, menuIslemGecmisi, profileName, profileEmail, balanceValue, menuSifreDegistir;
     private Button logoutButton, depositButton, withdrawButton;
     private ImageButton backButton;
     private FirebaseAuth mAuth;
@@ -52,6 +53,7 @@ public class ProfilMenu extends AppCompatActivity {
         balanceValue = findViewById(R.id.balance_value);
         menuPortfoy = findViewById(R.id.menu_portfoy);
         menuIslemGecmisi = findViewById(R.id.menu_islem_gecmisi);
+        menuSifreDegistir = findViewById(R.id.menu_sifre_degistir);
         logoutButton = findViewById(R.id.logout_button);
         backButton = findViewById(R.id.back_button);
         depositButton = findViewById(R.id.deposit_button);
@@ -74,6 +76,7 @@ public class ProfilMenu extends AppCompatActivity {
         logoutButton.setOnClickListener(v -> signOut());
         menuIslemGecmisi.setOnClickListener(v -> startActivity(new Intent(this, IslemGecmisiActivity.class)));
         menuPortfoy.setOnClickListener(v -> startActivity(new Intent(this, HisseMenu.class)));
+        menuSifreDegistir.setOnClickListener(v -> startActivity(new Intent(this, SifreDegistirActivity.class)));
 
         depositButton.setOnClickListener(v -> showBalanceUpdateDialog(true));
         withdrawButton.setOnClickListener(v -> showBalanceUpdateDialog(false));
