@@ -116,22 +116,22 @@ public class HisseMenu extends AppCompatActivity {
                 });
     }
 
-private void bakiye(){
+    private void bakiye(){
         progressBar.setVisibility(View.GONE);
-    db.collection("users").document(uid).get().addOnSuccessListener(documentSnapshot -> {
-        if(documentSnapshot.exists()){
-            Double balance = documentSnapshot.getDouble("balance");
+        db.collection("users").document(uid).get().addOnSuccessListener(documentSnapshot -> {
+            if(documentSnapshot.exists()){
+                Double balance = documentSnapshot.getDouble("balance");
 
-            if (balance != null) {
-                NumberFormat format = NumberFormat.getNumberInstance(new Locale("tr", "TR"));
-                format.setMinimumFractionDigits(2);
-                format.setMaximumFractionDigits(2);
+                if (balance != null) {
+                    NumberFormat format = NumberFormat.getNumberInstance(new Locale("tr", "TR"));
+                    format.setMinimumFractionDigits(2);
+                    format.setMaximumFractionDigits(2);
 
-                tvBalance.setText(format.format(balance) + " ₺");
+                    tvBalance.setText(format.format(balance) + " ₺");
+                }
             }
-        }
-    });
-}
+        });
+    }
 
 
 

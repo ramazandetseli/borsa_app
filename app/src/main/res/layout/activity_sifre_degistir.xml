@@ -10,6 +10,8 @@
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbarSifreDegistir"
         android:layout_width="match_parent"
+        android:background="#1E88E5"
+        app:titleTextColor="@android:color/white"
         android:layout_height="?attr/actionBarSize"
         app:layout_constraintTop_toTopOf="parent"
         app:navigationIcon="@drawable/abc_vector_test"

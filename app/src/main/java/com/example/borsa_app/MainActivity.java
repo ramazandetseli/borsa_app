@@ -3,6 +3,7 @@ package com.example.borsa_app;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -15,29 +16,24 @@ import profil.ProfilMenu;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button btnHisse,btnAra,btnProfil;
+
+
     FirebaseAuth auth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        btnHisse=findViewById(R.id.HisseButtonMenu);
-        btnAra=findViewById(R.id.AraButtonMenu);
-        btnProfil=findViewById(R.id.ProfilButtonMenu);
+        findViewById(R.id.hisseButtonMenu).setOnClickListener(v ->
+                startActivity(new Intent(this, HisseMenu.class)));
 
-        btnHisse.setOnClickListener(view -> {
-            Intent intent=new Intent(this,HisseMenu.class);
-            startActivity(intent);
-        });
-        btnAra.setOnClickListener(view -> {
-            Intent intent=new Intent(this,AraMenu.class);
-            startActivity(intent);
-        });
-        btnProfil.setOnClickListener(view -> {
-            Intent intent=new Intent(this,ProfilMenu.class);
-            startActivity(intent);
-        });
+        findViewById(R.id.AraButtonMenu).setOnClickListener(v ->
+                startActivity(new Intent(this, AraMenu.class)));
+
+        findViewById(R.id.ProfilButtonMenu).setOnClickListener(v ->
+                startActivity(new Intent(this, ProfilMenu.class)));
+
+
 
 
 

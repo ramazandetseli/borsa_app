@@ -30,8 +30,8 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="yenile"
             android:padding="8dp"
-            app:navigationIcon="@drawable/baseline_arrow_back_24"
-            app:tint="@android:color/white"/>
+            android:src="@drawable/ic_arrow"
+            app:tint="@android:color/white" />
     </com.google.android.material.appbar.MaterialToolbar>
 
     <!-- 💳 BAKİYE KARTI -->

@@ -1,15 +1,20 @@
 package profil;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.InputType;
-import android.view.View;
+
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -23,6 +28,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.SetOptions;
 
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,10 +49,17 @@ public class ProfilMenu extends AppCompatActivity {
     private double currentBalance = 0.0;
 
 
+    private ImageView profilImage;
+    private ActivityResultLauncher<Intent> imagePicker;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profil_menu);
+
+
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
@@ -58,9 +74,39 @@ public class ProfilMenu extends AppCompatActivity {
         backButton = findViewById(R.id.back_button);
         depositButton = findViewById(R.id.deposit_button);
         withdrawButton = findViewById(R.id.withdraw_button);
+        profilImage = findViewById(R.id.profile_image);
 
+        imagePicker = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        Uri imageUri = result.getData().getData();
+                        profilImage.setImageURI(imageUri);
+                        saveImageToLocal(imageUri); // 👈 KAYIT BURADA
+                    }
+                }
+        );
+
+
+
+        profilImage.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_PICK);
+            intent.setType("image/*");
+            imagePicker.launch(intent);
+        });
+
+
+        ImageButton btnRefresh=findViewById(R.id.btnRefresh);
+
+        btnRefresh.setOnClickListener(view -> {
+            setupListeners();
+            loadUserProfile();
+            loadLocalProfileImage();
+        });
         setupListeners();
         loadUserProfile();
+        loadLocalProfileImage();
+
     }
 
     @Override
@@ -152,6 +198,9 @@ public class ProfilMenu extends AppCompatActivity {
         } else {
             signOut();
         }
+
+
+
     }
 
     private void listenForBalanceChanges() {
@@ -193,4 +242,32 @@ public class ProfilMenu extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
+
+    private void saveImageToLocal(Uri uri) {
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(uri);
+            File file = new File(getFilesDir(), "profile.jpg");
+
+            FileOutputStream outputStream = new FileOutputStream(file);
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = inputStream.read(buffer)) > 0) {
+                outputStream.write(buffer, 0, length);
+            }
+
+            inputStream.close();
+            outputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Foto kaydedilemedi", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void loadLocalProfileImage() {
+        File file = new File(getFilesDir(), "profile.jpg");
+        if (file.exists()) {
+            profilImage.setImageURI(Uri.fromFile(file));
+        }
+    }
+
 }

@@ -11,33 +11,69 @@
     tools:context=".MainActivity">
 
 
-    <Button
-        android:id="@+id/HisseButtonMenu"
+
+
+
+
+    <LinearLayout
+        android:id="@+id/hisseButtonMenu"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="180dp"
-        android:backgroundTint="#1E88E5"
-        android:text="Hisseler">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:background="#1E3A8A"
+        android:clickable="true"
+        android:focusable="true">
 
-    </Button>
+        <TextView
+            android:text="📈 Hisseler"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"/>
+    </LinearLayout>
 
-    <Button
+    <LinearLayout
         android:id="@+id/AraButtonMenu"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:backgroundTint="#1E88E5"
-        android:text="Ara">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:background="#065F46"
+        android:clickable="true"
+        android:focusable="true">
 
-    </Button>
 
-    <Button
+        <TextView
+            android:text="🔍 Ara"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"/>
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/ProfilButtonMenu"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:backgroundTint="#1E88E5"
-        android:text="Profil">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:background="#312E81"
+        android:clickable="true"
+        android:focusable="true">
 
-    </Button>
+
+        <TextView
+            android:text="👤 Profil"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"/>
+    </LinearLayout>
+
 
 
 
