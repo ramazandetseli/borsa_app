@@ -28,6 +28,9 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import ara.FinnhubApi;
+import ara.PriceService;
+
 public class HisseMenu extends AppCompatActivity {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     String uid = FirebaseAuth.getInstance().getUid();
@@ -102,18 +105,39 @@ public class HisseMenu extends AppCompatActivity {
 
                     for (DocumentSnapshot doc : querySnapshot) {
                         String symbol = doc.getId();
-                        long lot = doc.getLong("lot");
-                        double avgPrice = doc.getDouble("avgPrice");
+                        Long lotVal = doc.getLong("lot");
+                        Double avg = doc.getDouble("avgPrice");
+                        Double price = doc.getDouble("price");
+
+                        long lot = lotVal != null ? lotVal : 0;
+                        double avgPrice = avg != null ? avg : 0.0;
+                        double Price = price != null ? price : 0.0;
 
                         hisseList.add(
 
-                                new hisseGorunum(symbol, lot, avgPrice)
+                                new hisseGorunum(symbol, lot, avgPrice,Price)
                         );
                     }
 
                     adapter.notifyDataSetChanged();
                     progressBar.setVisibility(View.GONE);
                 });
+
+        for (hisseGorunum h : hisseList) {
+            PriceService.getPrice(h.symbol, new PriceService.PriceCallback() {
+                @Override
+                public void onPrice(double price) {
+                    h.guncelFiyat = price;
+                    adapter.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onError(Throwable t) {
+                    // sessiz geç
+                }
+            });
+        }
+
     }
 
     private void bakiye(){

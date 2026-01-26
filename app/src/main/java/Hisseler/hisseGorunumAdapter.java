@@ -24,13 +24,15 @@ public class hisseGorunumAdapter
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        TextView txtSymbol, txtPrice;
+        TextView txtSymbol, txtPrice,txtTutar,txtWinLose;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
             txtSymbol = itemView.findViewById(R.id.tvSymbol);
-            txtPrice  = itemView.findViewById(R.id.tvName);
+            txtPrice  = itemView.findViewById(R.id.tvcurrentPrice);
+            txtTutar=itemView.findViewById(R.id.tvTutar);
+            txtWinLose=itemView.findViewById(R.id.tvLoseWin);
         }
     }
 
@@ -54,7 +56,27 @@ public class hisseGorunumAdapter
         hisseGorunum hisse = hisseList.get(position);
 
         holder.txtSymbol.setText(hisse.symbol);
-        holder.txtPrice.setText(hisse.price + " ₺");
+        holder.txtPrice.setText(hisse.guncelFiyat + " ₺");
+        holder.txtTutar.setText(hisse.ortalamaFiyat+ " ₺");
+        double karZarar =
+                (hisse.guncelFiyat - hisse.ortalamaFiyat) * hisse.lotValue;
+
+        holder.txtWinLose.setText(
+                String.format("%.2f ₺", karZarar)
+        );
+        if (karZarar > 0) {
+            holder.txtWinLose.setTextColor(
+                    holder.itemView.getContext().getColor(android.R.color.holo_green_dark)
+            );
+        } else if (karZarar < 0) {
+            holder.txtWinLose.setTextColor(
+                    holder.itemView.getContext().getColor(android.R.color.holo_red_dark)
+            );
+        } else {
+            holder.txtWinLose.setTextColor(
+                    holder.itemView.getContext().getColor(android.R.color.darker_gray)
+            );
+        }
     }
 
 
