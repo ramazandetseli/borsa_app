@@ -13,20 +13,20 @@ import com.example.borsa_app.R;
 import java.util.ArrayList;
 import java.util.List;
 
+import Hisseler.hisseGorunum;
+
 public class hisseAdapter extends RecyclerView.Adapter<hisseAdapter.HisseVH> {
     public interface OnHisseClickListener {
-        void onHisseClick(hisseModel hisse);
+        void onHisseClick(Hisseler.hisseGorunum hisse);
     }
 
     private OnHisseClickListener listener;
 
-    public void setOnHisseClickListener(OnHisseClickListener listener) {
-        this.listener = listener;
-    }
-    private final List<hisseModel> tumListe;
-    private final List<hisseModel> gosterilenListe;
+    public void setOnHisseClickListener(OnHisseClickListener listener) { this.listener = listener; }
+    private final List<Hisseler.hisseGorunum> tumListe;
+    private final List<Hisseler.hisseGorunum> gosterilenListe;
 
-    public hisseAdapter(List<hisseModel> liste) {
+    public hisseAdapter(ArrayList<hisseGorunum> liste) {
         this.tumListe = new ArrayList<>(liste);
         this.gosterilenListe = new ArrayList<>(liste);
     }
@@ -43,7 +43,7 @@ public class hisseAdapter extends RecyclerView.Adapter<hisseAdapter.HisseVH> {
     @Override
     public void onBindViewHolder(@NonNull HisseVH holder, int position) {
 
-        hisseModel h = gosterilenListe.get(position);
+        Hisseler.hisseGorunum h = gosterilenListe.get(position);
         if (h != null && h.symbol != null) {
             holder.tvSymbol.setText(h.symbol);
             holder.tvName.setText(h.name != null ? h.name : h.symbol);
@@ -82,7 +82,7 @@ public class hisseAdapter extends RecyclerView.Adapter<hisseAdapter.HisseVH> {
             gosterilenListe.addAll(tumListe);
         } else {
             text = text.toLowerCase();
-            for (hisseModel h : tumListe) {
+            for (Hisseler.hisseGorunum h : tumListe) {
                 if ((h.symbol != null && h.symbol.toLowerCase().contains(text)) ||
                         (h.name != null && h.name.toLowerCase().contains(text))) {
                     gosterilenListe.add(h);

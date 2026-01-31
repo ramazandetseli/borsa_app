@@ -9,6 +9,7 @@
 
 
     <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/backProfilToMenu"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="#1E88E5"
@@ -17,22 +18,9 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-       >>
-
-
-    <ImageButton
-        android:id="@+id/back_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Geri Dön"
-        android:src="@drawable/outline_account_circle_off_24"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-
+        app:navigationIcon="@drawable/baseline_arrow_back_24"
+        app:title="Profilim"
+        app:titleTextColor="@android:color/white">
 
         <ImageButton
             android:id="@+id/btnRefresh"
@@ -45,7 +33,6 @@
             android:src="@drawable/ic_arrow"
             app:tint="@android:color/white" />
     </com.google.android.material.appbar.MaterialToolbar>
-
     <ImageView
         android:id="@+id/profile_image"
         android:layout_width="120dp"

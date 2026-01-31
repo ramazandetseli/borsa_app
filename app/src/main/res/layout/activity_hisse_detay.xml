@@ -41,67 +41,144 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- 📈 GRAFİK (şimdilik placeholder) -->
-            <View
-                android:id="@+id/chartPlaceholder"
+
+            <WebView
+                android:id="@+id/tradingView"
                 android:layout_width="match_parent"
-                android:layout_height="220dp"
-                android:background="#DDDDDD" />
+                android:layout_height="300dp"
+                tools:ignore="WebViewLayout" />
+            <!-- 🔹 2x2 Fiyat Alanı -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="16dp">
 
-            <!-- 📊 BİLGİLER -->
+                <!-- SOL BLOK -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:text="Günlük Min"
+                        android:textStyle="bold"
+                        android:layout_width="60dp"
+                        android:layout_height="40dp"/>
+
+                    <TextView
+                        android:id="@+id/tvMin"
+                        android:text="-"
+                        android:layout_width="60dp"
+                        android:layout_height="40dp"/>
+
+                    <TextView
+                        android:layout_marginTop="12dp"
+                        android:text="Günlük Max"
+                        android:textStyle="bold"
+                        android:layout_width="60dp"
+                        android:layout_height="40dp"/>
+
+                    <TextView
+                        android:id="@+id/tvMax"
+                        android:text="-"
+                        android:layout_width="60dp"
+                        android:layout_height="40dp"/>
+                </LinearLayout>
+
+                <!-- SAĞ BLOK -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="end">
+
+                    <TextView
+                        android:text="Güncel Fiyat"
+                        android:textStyle="bold"
+                        android:layout_width="60dp"
+                        android:layout_height="40dp"/>
+
+                    <TextView
+                        android:id="@+id/tvValue"
+                        android:text="-"
+                        android:layout_width="60dp"
+                        android:layout_height="40dp"/>
+
+                    <TextView
+                        android:layout_marginTop="12dp"
+                        android:text="Ort. Maliyet"
+                        android:textStyle="bold"
+                        android:layout_width="60dp"
+                        android:layout_height="40dp"/>
+
+                    <TextView
+                        android:id="@+id/tvMaliyet"
+                        android:text="-"
+                        android:layout_width="60dp"
+                        android:layout_height="40dp"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="20dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:text="Hacim:"
+                    android:textStyle="bold"
+                    android:layout_height="40dp"/>
+
+                <TextView
+                    android:id="@+id/tvVolume"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:text="-"
+                    android:layout_height="40dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:text="Lot:"
+                    android:textStyle="bold"
+                    android:layout_height="40dp"/>
+
+                <TextView
+                    android:id="@+id/tvLot"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:text="-"
+                    android:layout_height="40dp"/>
+            </LinearLayout>
+
             <TextView
-                android:layout_marginTop="16dp"
-                android:text="Günlük Min:"
+                android:id="@+id/tvKarZarar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Getiri: -"
+                android:textSize="18sp"
                 android:textStyle="bold"
-                android:layout_width="60dp"
-                android:layout_height="35dp"/>
-
-            <TextView
-                android:id="@+id/tvMin"
-                android:text="-"
-                android:layout_width="60dp"
-                android:layout_height="30dp"/>
-
-            <TextView
-                android:layout_width="60dp"
-                android:layout_height="35dp"
-                android:layout_marginTop="8dp"
-                android:text="Günlük Max:"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tvMax"
-                android:text="-"
-                android:layout_width="60dp"
-                android:layout_height="30dp"/>
-
-            <TextView
-                android:layout_width="60dp"
-                android:layout_height="20dp"
-                android:layout_marginTop="8dp"
-                android:text="Hacim:"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tvVolume"
-                android:text="-"
-                android:layout_width="60dp"
-                android:layout_height="30dp"/>
-            <TextView
-                android:layout_width="60dp"
-                android:layout_height="20dp"
-                android:layout_marginTop="8dp"
-                android:text="Degeri:"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tvValue"
-                android:text="-"
-                android:layout_width="60dp"
-                android:layout_height="30dp"/>
-
+                android:gravity="center"/>
 
         </LinearLayout>
+
+
     </ScrollView>
     <!-- ⬇️ ALT SABİT BAR -->
     <LinearLayout

@@ -20,6 +20,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 import java.util.ArrayList;
 import java.util.List;
 
+import Hisseler.hisseGorunum;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -50,17 +51,17 @@ public class AraMenu extends AppCompatActivity {
         FinnhubApi api = ApiClient.getClient().create(FinnhubApi.class);
 
         api.getStocks("US", "d5kb0j9r01qjaedu5jigd5kb0j9r01qjaedu5jj0")
-                .enqueue(new Callback<List<hisseModel>>() {
+                .enqueue(new Callback<List<Hisseler.hisseGorunum>>() {
                     @Override
-                    public void onResponse(Call<List<hisseModel>> call,
-                                           Response<List<hisseModel>> response) {
+                    public void onResponse(Call<List<Hisseler.hisseGorunum>> call,
+                                           Response<List<Hisseler.hisseGorunum>> response) {
                         progressBar.setVisibility(View.GONE);
 
                         if (response.isSuccessful() && response.body() != null) {
 
-                            ArrayList<hisseModel> liste = new ArrayList<>();
-                            for (hisseModel h : response.body()) {
-                                liste.add(new hisseModel(h.symbol, h.name));
+                            ArrayList<Hisseler.hisseGorunum> liste = new ArrayList<>();
+                            for (Hisseler.hisseGorunum h : response.body()) {
+                                liste.add(new Hisseler.hisseGorunum(h.symbol, h.name));
                             }
 
                             adapter = new hisseAdapter(liste);
@@ -89,9 +90,11 @@ public class AraMenu extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onFailure(Call<List<hisseModel>> call, Throwable t) {
-                        t.printStackTrace();
+                    public void onFailure(Call<List<hisseGorunum>> call, Throwable t) {
+
                     }
+
+
                 });
 
 

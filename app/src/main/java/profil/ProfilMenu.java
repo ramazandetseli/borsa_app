@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.borsa_app.GirisActivity;
 import com.example.borsa_app.R;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -71,11 +72,16 @@ public class ProfilMenu extends AppCompatActivity {
         menuIslemGecmisi = findViewById(R.id.menu_islem_gecmisi);
         menuSifreDegistir = findViewById(R.id.menu_sifre_degistir);
         logoutButton = findViewById(R.id.logout_button);
-        backButton = findViewById(R.id.back_button);
+
         depositButton = findViewById(R.id.deposit_button);
         withdrawButton = findViewById(R.id.withdraw_button);
         profilImage = findViewById(R.id.profile_image);
 
+        MaterialToolbar toolbar= findViewById(R.id.backProfilToMenu);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(v -> {
+            finish(); // geri dön
+        });
         imagePicker = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {

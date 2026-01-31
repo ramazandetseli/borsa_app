@@ -6,7 +6,7 @@ import retrofit2.http.Query;
 
 public interface FinnhubApi {
     @GET("api/v1/stock/symbol")
-    Call<List<hisseModel>> getStocks(
+    Call<List<Hisseler.hisseGorunum>> getStocks(
             @Query("exchange") String exchange,
             @Query("token") String apiKey
     );
@@ -17,4 +17,5 @@ public interface FinnhubApi {
             @Query("symbol") String symbol,
             @Query("token") String apiKey
     );
+
 }

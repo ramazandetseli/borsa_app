@@ -4,24 +4,34 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.borsa_app.R;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
-
-import ara.hisseAdapter;
+import java.util.Locale;
 
 public class hisseGorunumAdapter
         extends RecyclerView.Adapter<hisseGorunumAdapter.ViewHolder> {
 
     ArrayList<hisseGorunum> hisseList;
+    NumberFormat format;
+
     public hisseGorunumAdapter(ArrayList<hisseGorunum> hisseList) {
         this.hisseList = hisseList;
     }
 
+    public interface OnHisseClickListener {
+        void onHisseClick(hisseGorunum hisse);
+    }
+
+    private OnHisseClickListener listener;
+
+    public void setOnHisseClickListener(OnHisseClickListener listener) { this.listener = listener; }
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView txtSymbol, txtPrice,txtTutar,txtWinLose;
@@ -33,6 +43,7 @@ public class hisseGorunumAdapter
             txtPrice  = itemView.findViewById(R.id.tvcurrentPrice);
             txtTutar=itemView.findViewById(R.id.tvTutar);
             txtWinLose=itemView.findViewById(R.id.tvLoseWin);
+
         }
     }
 
@@ -56,17 +67,22 @@ public class hisseGorunumAdapter
         hisseGorunum hisse = hisseList.get(position);
 
         holder.txtSymbol.setText(hisse.symbol);
-        holder.txtPrice.setText(hisse.guncelFiyat + " ₺");
-        holder.txtTutar.setText(hisse.ortalamaFiyat+ " ₺");
+        holder.txtPrice.setText("Fiyat:"+hisse.guncelFiyat + " ₺");
+        holder.txtTutar.setText("Ort. Maliyet:"+hisse.ortalamaFiyat+ " ₺");
         double karZarar =
                 (hisse.guncelFiyat - hisse.ortalamaFiyat) * hisse.lotValue;
+        format = NumberFormat.getNumberInstance(new Locale("tr", "TR"));
+        format.setMinimumFractionDigits(2);
+        format.setMaximumFractionDigits(2);
 
         holder.txtWinLose.setText(
-                String.format("%.2f ₺", karZarar)
+                "Top. Getiri: " + format.format(karZarar) + " ₺"
+
         );
         if (karZarar > 0) {
             holder.txtWinLose.setTextColor(
                     holder.itemView.getContext().getColor(android.R.color.holo_green_dark)
+
             );
         } else if (karZarar < 0) {
             holder.txtWinLose.setTextColor(
@@ -77,6 +93,11 @@ public class hisseGorunumAdapter
                     holder.itemView.getContext().getColor(android.R.color.darker_gray)
             );
         }
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onHisseClick(hisse);
+            }
+        });
     }
 
 
