@@ -26,6 +26,7 @@ public class hisseAdapter extends RecyclerView.Adapter<hisseAdapter.HisseVH> {
     private final List<Hisseler.hisseGorunum> tumListe;
     private final List<Hisseler.hisseGorunum> gosterilenListe;
 
+
     public hisseAdapter(ArrayList<hisseGorunum> liste) {
         this.tumListe = new ArrayList<>(liste);
         this.gosterilenListe = new ArrayList<>(liste);

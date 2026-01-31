@@ -14,6 +14,7 @@ public class PriceService {
         void onError(Throwable t);
     }
 
+
     public static void getPrice(String symbol, PriceCallback callback) {
         api.getQuote(symbol, "d5kb0j9r01qjaedu5jigd5kb0j9r01qjaedu5jj0")
                 .enqueue(new Callback<QuoteResponse>() {

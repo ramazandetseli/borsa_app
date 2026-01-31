@@ -27,6 +27,7 @@ import retrofit2.Response;
 
 public class AraMenu extends AppCompatActivity {
 
+
     EditText etSearch;
     RecyclerView rvList;
     hisseAdapter adapter;

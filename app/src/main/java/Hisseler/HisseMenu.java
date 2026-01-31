@@ -203,7 +203,7 @@ public class HisseMenu extends AppCompatActivity {
 }
 
     private double portfoyDegeri(){
-        double toplam = 0; // 🔴 ŞART
+        double toplam = 0;
 
         for (hisseGorunum h : hisseList) {
             if (h.guncelFiyat > 0) {
@@ -211,7 +211,7 @@ public class HisseMenu extends AppCompatActivity {
             }
         }
 
-        plusBakiye = toplam; // 🔴 snapshot
+        plusBakiye = toplam;
         return toplam;
     }
 

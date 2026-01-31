@@ -8,5 +8,6 @@ public class ApiClient {
                 .baseUrl("https://finnhub.io/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
+
     }
 }

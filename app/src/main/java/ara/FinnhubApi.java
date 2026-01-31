@@ -18,4 +18,5 @@ public interface FinnhubApi {
             @Query("token") String apiKey
     );
 
+
 }

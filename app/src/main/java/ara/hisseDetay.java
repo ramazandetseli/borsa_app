@@ -31,6 +31,7 @@ public class hisseDetay extends AppCompatActivity {
     double price;
     String symbol,name;
 
+
     WebView webView;
     TextView tvKarZararColor;
 

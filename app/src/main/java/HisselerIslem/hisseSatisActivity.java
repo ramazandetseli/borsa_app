@@ -27,6 +27,7 @@ public class hisseSatisActivity extends AppCompatActivity {
     String symbol;
     double price;
 
+
     TextView hisseName, value, txttotal;
     EditText lotSayisi;
 

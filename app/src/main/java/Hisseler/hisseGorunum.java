@@ -40,4 +40,5 @@ public class hisseGorunum {
     public double karZarar(){
         return guncelFiyat-ortalamaFiyat;
     }
+
 }

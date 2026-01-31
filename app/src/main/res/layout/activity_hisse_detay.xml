@@ -24,6 +24,7 @@
         android:backgroundTint="#1E88E5"/>
 
 
+
     <!-- 📜 SCROLLABLE CONTENT -->
     <ScrollView
         android:id="@+id/scrollView2"
