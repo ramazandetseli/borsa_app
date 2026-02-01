@@ -7,132 +7,172 @@
     android:layout_height="match_parent"
     tools:context="profil.ProfilMenu">
 
-
     <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/backProfilToMenu"
-        android:layout_width="0dp"
+        android:id="@+id/back_button"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#1E88E5"
+        android:background="?attr/colorPrimary"
+        app:titleTextColor="@android:color/white"
         android:paddingTop="12dp"
-        android:paddingBottom="12dp"
+        android:paddingBottom="8dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:navigationIcon="@drawable/baseline_arrow_back_24"
-        app:title="Profilim"
-        app:titleTextColor="@android:color/white">
+        app:navigationIcon="@drawable/abc_vector_test"
+        app:title="Profil"
+        android:backgroundTint="#1E88E5"
+        />
 
-        <ImageButton
-            android:id="@+id/btnRefresh"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="yenile"
-            android:padding="8dp"
-            android:src="@drawable/ic_arrow"
-            app:tint="@android:color/white" />
-    </com.google.android.material.appbar.MaterialToolbar>
     <ImageView
         android:id="@+id/profile_image"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="80dp"
-        android:clickable="true"
-        android:contentDescription="Profil Resmi"
-        android:focusable="true"
-        android:padding="12dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/outline_add_24"
+        android:src="@drawable/ic_launcher_background"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="Profil Resmi" />
+
+    <TextView
+        android:id="@+id/profile_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Kullanıcı Adı"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/profile_image" />
+
+    <TextView
+        android:id="@+id/profile_email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="kullanici@email.com"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/profile_name" />
+
+    <TextView
+        android:id="@+id/balance_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Bakiyeniz:"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/profile_email" />
 
     <TextView
         android:id="@+id/balance_value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:text="0.00 ₺"
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/balance_label" />
 
-    <TextView
-        android:id="@+id/menu_sifre_degistir"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:id="@+id/balance_buttons"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="24dp"
-        android:background="?android:attr/selectableItemBackground"
-        android:clickable="true"
-        android:drawablePadding="16dp"
-        android:focusable="true"
-        android:gravity="center_vertical"
-        android:padding="16dp"
-        android:src="@drawable/outline_admin_panel_settings_24"
-        android:text="Şifre Değiştir"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@+id/balance_value"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/menu_islem_gecmisi" />
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <Button
+            android:id="@+id/deposit_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Para Yatır"
+            android:backgroundTint="@color/green"
+            />
+
+        <Button
+            android:id="@+id/withdraw_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="Para Çek"
+            android:backgroundTint="@color/red"
+            />
+    </LinearLayout>
 
     <View
         android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="24dp"
         android:background="?android:attr/listDivider"
-        app:layout_constraintTop_toBottomOf="@+id/balance_buttons"
-        tools:layout_editor_absoluteX="-1dp" />
-
-    <TextView
-        android:id="@+id/menu_islem_gecmisi"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="24dp"
-        android:background="?android:attr/selectableItemBackground"
-        android:clickable="true"
-        android:drawablePadding="16dp"
-        android:focusable="true"
-        android:gravity="center_vertical"
-        android:padding="16dp"
-        android:text="İşlem Geçmişi"
-        android:textSize="18sp"
-        app:drawableStartCompat="@android:drawable/ic_menu_recent_history"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/menu_portfoy" />
+        app:layout_constraintTop_toBottomOf="@+id/balance_buttons" />
 
     <TextView
         android:id="@+id/menu_portfoy"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="28dp"
+        android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
-        android:background="?android:attr/selectableItemBackground"
-        android:clickable="true"
         android:drawablePadding="16dp"
-        android:focusable="true"
         android:gravity="center_vertical"
-        android:padding="16dp"
         android:text="Portföy"
         android:textSize="18sp"
         app:drawableStartCompat="@android:drawable/ic_menu_gallery"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/divider" />
+        app:layout_constraintTop_toBottomOf="@+id/divider"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?android:attr/selectableItemBackground"
+        android:padding="16dp"/>
+
+    <TextView
+        android:id="@+id/menu_islem_gecmisi"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
+        android:drawablePadding="16dp"
+        android:gravity="center_vertical"
+        android:text="İşlem Geçmişi"
+        android:textSize="18sp"
+        app:drawableStartCompat="@android:drawable/ic_menu_recent_history"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/menu_portfoy"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?android:attr/selectableItemBackground"
+        android:padding="16dp"/>
+
+    <TextView
+        android:id="@+id/menu_sifre_degistir"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
+        android:drawablePadding="16dp"
+        android:gravity="center_vertical"
+        android:text="Şifre Değiştir"
+        android:textSize="18sp"
+        app:drawableStartCompat="@drawable/ic_lock"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/menu_islem_gecmisi"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?android:attr/selectableItemBackground"
+        android:padding="16dp"/>
 
     <Button
         android:id="@+id/logout_button"
@@ -145,68 +185,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/profile_email"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="kullanici@email.com"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/profile_name" />
-
-    <TextView
-        android:id="@+id/balance_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="Bakiyeniz:"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/profile_email" />
-
-    <LinearLayout
-        android:id="@+id/balance_buttons"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/balance_value">
-
-        <Button
-            android:id="@+id/deposit_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Para Yatır" />
-
-        <Button
-            android:id="@+id/withdraw_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:text="Para Çek" />
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/profile_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="Kullanıcı Adı"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/profile_image" />
+        android:backgroundTint="@color/red"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

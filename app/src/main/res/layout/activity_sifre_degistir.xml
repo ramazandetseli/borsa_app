@@ -9,13 +9,19 @@
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbarSifreDegistir"
-        android:layout_width="match_parent"
-        android:background="#1E88E5"
+        android:layout_width="0dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="8dp"
+        android:background="?attr/colorPrimary"
+
         app:titleTextColor="@android:color/white"
-        android:layout_height="?attr/actionBarSize"
+        android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:navigationIcon="@drawable/abc_vector_test"
-        app:title="Şifre Değiştir" />
+        app:title="Şifre Değiştir"
+        android:backgroundTint="#1E88E5"/>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/til_current_password"
@@ -87,6 +93,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"/>
+        android:layout_marginEnd="24dp"
+        android:backgroundTint="#1E88E5"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

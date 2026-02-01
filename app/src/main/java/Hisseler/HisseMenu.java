@@ -1,44 +1,39 @@
 package Hisseler;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.media.Image;
 import android.os.Bundle;
-import android.os.Message;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.borsa_app.R;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import org.w3c.dom.Text;
+
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import HisselerIslem.hisseAlisActivity;
 import ara.AraMenu;
-import ara.FinnhubApi;
+
 import ara.PriceService;
-import ara.hisseAdapter;
 import ara.hisseDetay;
 
+@SuppressLint("ResourceAsColor")
 public class HisseMenu extends AppCompatActivity {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     String uid = FirebaseAuth.getInstance().getUid();
@@ -52,8 +47,11 @@ public class HisseMenu extends AppCompatActivity {
 
     ProgressBar progressBar;
 
+    private Double nakit;
     TextView totalKarZarar;
-    public double plusBakiye = 0.0;
+    private double plusBakiye = 0.0;
+    LinearLayout bakiyeDetay;
+
 
 
     @Override
@@ -63,7 +61,7 @@ public class HisseMenu extends AppCompatActivity {
         setContentView(R.layout.activity_hisse_menu);
         islemMenuGit=findViewById(R.id.btnIslemMenuGit);
         totalKarZarar=findViewById(R.id.karZararTable);
-
+        bakiyeDetay=findViewById(R.id.bakiyeDetayGor);
         MaterialToolbar toolbar = findViewById(R.id.backHissePortfoyden);
 
         islemMenuGit.setOnClickListener(view -> {
@@ -80,6 +78,10 @@ public class HisseMenu extends AppCompatActivity {
         tvBalance=findViewById(R.id.bakiyeHisseMenu);
 
 
+
+        bakiyeDetay.setOnClickListener(view -> {
+            showBottomSheet();
+        });
 
 
         recyclerView = findViewById(R.id.recyclerView);
@@ -126,7 +128,7 @@ public class HisseMenu extends AppCompatActivity {
                             @Override
                             public void onPrice(double price) {
 
-                                // ❗ 0 veya negatif gelirse overwrite ETME
+                                // 0 veya negatif gelirse overwrite ETME
                                 if (price > 0) {
                                     h.guncelFiyat = price;
                                     adapter.notifyItemChanged(index);
@@ -172,7 +174,7 @@ public class HisseMenu extends AppCompatActivity {
 
                     if(!documentSnapshot.exists()) return;
 
-                    Double nakit = documentSnapshot.getDouble("balance");
+                    nakit = documentSnapshot.getDouble("balance");
                     if (nakit == null) nakit = 0.0;
 
                     double toplamVarlik = nakit + plusBakiye;
@@ -198,9 +200,25 @@ public class HisseMenu extends AppCompatActivity {
     format.setMaximumFractionDigits(2);
 
     totalKarZarar.setText(format.format(toplam) + " ₺");
+        if (toplam > 0) {
+            totalKarZarar.setTextColor(
+                    getResources().getColor(android.R.color.holo_green_dark)
+            );
+
+        } else if (toplam < 0) {
+            totalKarZarar.setTextColor(
+                    getResources().getColor(android.R.color.holo_red_dark)
+            );
+
+        } else {
+            totalKarZarar.setTextColor(
+                    getResources().getColor(android.R.color.darker_gray)
+            );
+        }
 
 
-}
+
+    }
 
     private double portfoyDegeri(){
         double toplam = 0;
@@ -213,6 +231,25 @@ public class HisseMenu extends AppCompatActivity {
 
         plusBakiye = toplam;
         return toplam;
+    }
+    private void showBottomSheet() {
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
+        View view = getLayoutInflater().inflate(R.layout.bottomsheet_portfoy, null);
+
+        TextView tvTotal = view.findViewById(R.id.tvBottomTotal);
+        TextView tvKarZarar = view.findViewById(R.id.tvBottomKarZarar);
+        TextView tvCash = view.findViewById(R.id.tvBottomCash);
+
+        NumberFormat format = NumberFormat.getNumberInstance(new Locale("tr", "TR"));
+        format.setMinimumFractionDigits(2);
+        format.setMaximumFractionDigits(2);
+
+        tvTotal.setText("Toplam: " + format.format(plusBakiye+nakit) + " ₺");
+        tvKarZarar.setText("Kar/Zarar: " + totalKarZarar.getText());
+        tvCash.setText("Nakit: " + format.format(nakit) + " ₺");
+
+        bottomSheetDialog.setContentView(view);
+        bottomSheetDialog.show();
     }
 
 
