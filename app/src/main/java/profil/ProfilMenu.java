@@ -3,14 +3,18 @@ package profil;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import com.example.borsa_app.GirisActivity;
 import com.example.borsa_app.R;
@@ -28,8 +32,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import Hisseler.HisseMenu;
+import profil.IslemGecmisiActivity; // Bu activitylerin var olduğunu varsayıyorum
+import  profil.SifreDegistirActivity;// Bu activitylerin var olduğunu varsayıyorum
 
-public class ProfilMenu extends AppCompatActivity {
+public class ProfilMenu extends Fragment {
 
     private TextView menuPortfoy, menuIslemGecmisi, profileName, profileEmail, balanceValue, menuSifreDegistir;
     private Button logoutButton, depositButton, withdrawButton;
@@ -41,53 +47,70 @@ public class ProfilMenu extends AppCompatActivity {
     private double currentBalance = 0.0;
     private static final double MAX_DEPOSIT_AMOUNT = 1_000_000_000.0; // 1 Milyar
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profil_menu);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.activity_profil_menu, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        profileName = findViewById(R.id.profile_name);
-        profileEmail = findViewById(R.id.profile_email);
-        balanceValue = findViewById(R.id.balance_value);
-        menuPortfoy = findViewById(R.id.menu_portfoy);
-        menuIslemGecmisi = findViewById(R.id.menu_islem_gecmisi);
-        menuSifreDegistir = findViewById(R.id.menu_sifre_degistir);
-        logoutButton = findViewById(R.id.logout_button);
-        backToolbar = findViewById(R.id.back_button);
-        depositButton = findViewById(R.id.deposit_button);
-        withdrawButton = findViewById(R.id.withdraw_button);
+        profileName = view.findViewById(R.id.profile_name);
+        profileEmail = view.findViewById(R.id.profile_email);
+        balanceValue = view.findViewById(R.id.balance_value);
+        menuPortfoy = view.findViewById(R.id.menu_portfoy);
+        menuIslemGecmisi = view.findViewById(R.id.menu_islem_gecmisi);
+        menuSifreDegistir = view.findViewById(R.id.menu_sifre_degistir);
+        logoutButton = view.findViewById(R.id.logout_button);
+        backToolbar = view.findViewById(R.id.back_button);
+        depositButton = view.findViewById(R.id.deposit_button);
+        withdrawButton = view.findViewById(R.id.withdraw_button);
 
         setupListeners();
         loadUserProfile();
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    public void onDestroyView() {
+        super.onDestroyView();
         if (balanceListener != null) {
             balanceListener.remove();
         }
     }
 
     private void setupListeners() {
-        backToolbar.setNavigationOnClickListener(v -> onBackPressed());
+        backToolbar.setNavigationOnClickListener(v -> {
+            if (getActivity() != null) getActivity().onBackPressed();
+        });
         logoutButton.setOnClickListener(v -> signOut());
-        menuIslemGecmisi.setOnClickListener(v -> startActivity(new Intent(this, IslemGecmisiActivity.class)));
-        menuPortfoy.setOnClickListener(v -> startActivity(new Intent(this, HisseMenu.class)));
-        menuSifreDegistir.setOnClickListener(v -> startActivity(new Intent(this, SifreDegistirActivity.class)));
+        
+        menuIslemGecmisi.setOnClickListener(v -> startActivity(new Intent(getContext(), IslemGecmisiActivity.class)));
+        
+        // Portföy tıklandığında yine aynı activity içinde kalmak isteyebilirsin.
+        // Ama şimdilik mevcut mantığı koruyorum:
+        menuPortfoy.setOnClickListener(v -> {
+            // Normalde BottomNav'dan geçilmeli ama intent kalsın istiyorsan:
+            // startActivity(new Intent(getContext(), HisseMenu.class)); // HisseMenu artık Activity değil!
+            // Bu yüzden burayı BottomNav tetiklemesi gibi düşünebilirsin ya da silebilirsin.
+        });
+
+        menuSifreDegistir.setOnClickListener(v -> startActivity(new Intent(getContext(), SifreDegistirActivity.class)));
 
         depositButton.setOnClickListener(v -> showBalanceUpdateDialog(true));
         withdrawButton.setOnClickListener(v -> showBalanceUpdateDialog(false));
     }
 
     private void showBalanceUpdateDialog(boolean isDeposit) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        if (getContext() == null) return;
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle(isDeposit ? "Para Yatır" : "Para Çek");
 
-        final EditText input = new EditText(this);
+        final EditText input = new EditText(getContext());
         input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
         input.setHint("Miktar");
         builder.setView(input);
@@ -100,24 +123,24 @@ public class ProfilMenu extends AppCompatActivity {
                 BigDecimal amount = new BigDecimal(amountStr);
 
                 if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-                    Toast.makeText(this, "Geçerli bir miktar girin", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Geçerli bir miktar girin", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
                 if (isDeposit && amount.compareTo(new BigDecimal(MAX_DEPOSIT_AMOUNT)) > 0) {
-                    Toast.makeText(this, "Tek seferde en fazla " + String.format("%,.0f", MAX_DEPOSIT_AMOUNT) + " ₺ yatırabilirsiniz.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(), "Tek seferde en fazla " + String.format("%,.0f", MAX_DEPOSIT_AMOUNT) + " ₺ yatırabilirsiniz.", Toast.LENGTH_LONG).show();
                     return;
                 }
 
                 if (!isDeposit && amount.compareTo(BigDecimal.valueOf(currentBalance)) > 0) {
-                    Toast.makeText(this, "Yetersiz bakiye", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Yetersiz bakiye", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
                 updateBalance(isDeposit ? amount.doubleValue() : -amount.doubleValue(), isDeposit ? "DEPOSIT" : "WITHDRAW");
 
             } catch (NumberFormatException e) {
-                Toast.makeText(this, "Geçersiz miktar formatı", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Geçersiz miktar formatı", Toast.LENGTH_SHORT).show();
             }
         });
         builder.setNegativeButton("İptal", (dialog, which) -> dialog.cancel());
@@ -131,9 +154,13 @@ public class ProfilMenu extends AppCompatActivity {
             transaction.update(userRef, "balance", FieldValue.increment(amount));
             return null;
         }).addOnSuccessListener(aVoid -> {
-            addTransactionToHistory(amount, type);
-            Toast.makeText(this, "İşlem başarılı", Toast.LENGTH_SHORT).show();
-        }).addOnFailureListener(e -> Toast.makeText(this, "İşlem başarısız: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+            if (isAdded()) {
+                addTransactionToHistory(amount, type);
+                Toast.makeText(getContext(), "İşlem başarılı", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(e -> {
+            if (isAdded()) Toast.makeText(getContext(), "İşlem başarısız: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        });
     }
 
     private void addTransactionToHistory(double amount, String type) {
@@ -161,7 +188,8 @@ public class ProfilMenu extends AppCompatActivity {
 
     private void listenForBalanceChanges() {
         if (userRef != null) {
-            balanceListener = userRef.addSnapshotListener(this, (snapshot, e) -> {
+            balanceListener = userRef.addSnapshotListener((snapshot, e) -> {
+                if (!isAdded()) return;
                 if (e != null) { return; }
                 if (snapshot != null && snapshot.exists()) {
                     Double balance = snapshot.getDouble("balance");
@@ -184,14 +212,16 @@ public class ProfilMenu extends AppCompatActivity {
         userData.put("createdAt", FieldValue.serverTimestamp());
 
         userRef.set(userData, SetOptions.merge())
-                .addOnFailureListener(e -> Toast.makeText(ProfilMenu.this, "Kullanıcı profili oluşturulamadı.", Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> {
+                    if (isAdded()) Toast.makeText(getContext(), "Kullanıcı profili oluşturulamadı.", Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void signOut() {
         mAuth.signOut();
-        Intent intent = new Intent(this, GirisActivity.class);
+        Intent intent = new Intent(getContext(), GirisActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
-        finish();
+        if (getActivity() != null) getActivity().finish();
     }
 }

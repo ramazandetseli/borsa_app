@@ -1,80 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context=".MainActivity">
 
-
-
-
-
-
-    <LinearLayout
-        android:id="@+id/hisseButtonMenu"
+    <!-- Fragmentların gösterileceği ana kapsayıcı -->
+    <FrameLayout
+        android:id="@+id/fragment_container"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:background="#1E3A8A"
-        android:clickable="true"
-        android:focusable="true">
+        android:layout_height="match_parent"
+        android:layout_above="@id/bottom_navigation" />
 
-        <TextView
-            android:text="📈 Hisseler"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="#FFFFFF"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/AraButtonMenu"
+    <!-- Alt navigasyon menüsü -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:background="#065F46"
-        android:clickable="true"
-        android:focusable="true">
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="?android:attr/windowBackground"
+        app:menu="@menu/bottom_menu" />
 
-
-        <TextView
-            android:text="🔍 Ara"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="#FFFFFF"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/ProfilButtonMenu"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:background="#312E81"
-        android:clickable="true"
-        android:focusable="true">
-
-
-        <TextView
-            android:text="👤 Profil"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="#FFFFFF"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"/>
-    </LinearLayout>
-
-
-
-
-</LinearLayout>
+</RelativeLayout>

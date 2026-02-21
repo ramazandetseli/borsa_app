@@ -1,42 +1,56 @@
 package com.example.borsa_app;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
-import android.widget.TextView;
-
 import androidx.appcompat.app.AppCompatActivity;
-
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.auth.FirebaseAuth;
 
-import Hisseler.HisseMenu;
-import ara.AraMenu;
-import profil.ProfilMenu;
+import Hisseler.HisseMenu; // Bu sınıfın Fragment'a dönüştürüldüğünü varsayıyorum
+import ara.AraMenu;       // Bu sınıfın Fragment'a dönüştürüldüğünü varsayıyorum
+import profil.ProfilMenu; // Bu sınıfın Fragment'a dönüştürüldüğünü varsayıyorum
 
 public class MainActivity extends AppCompatActivity {
 
-
-
-    FirebaseAuth auth;
+    private BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        findViewById(R.id.hisseButtonMenu).setOnClickListener(v ->
-                startActivity(new Intent(this, HisseMenu.class)));
 
-        findViewById(R.id.AraButtonMenu).setOnClickListener(v ->
-                startActivity(new Intent(this, AraMenu.class)));
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
 
-        findViewById(R.id.ProfilButtonMenu).setOnClickListener(v ->
-                startActivity(new Intent(this, ProfilMenu.class)));
+        // Başlangıçta HisseFragment'i yükle
+        if (savedInstanceState == null) {
+            loadFragment(new HisseMenu());
+        }
 
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            Fragment selectedFragment = null;
+            int itemId = item.getItemId();
 
+            if (itemId == R.id.nav_hisseler) {
+                selectedFragment = new HisseMenu();
+            } else if (itemId == R.id.nav_ara) {
+                selectedFragment = new AraMenu();
+            } else if (itemId == R.id.nav_profil) {
+                selectedFragment = new ProfilMenu();
+            }
 
-
-
+            if (selectedFragment != null) {
+                loadFragment(selectedFragment);
+                return true;
+            }
+            return false;
+        });
     }
 
+    private void loadFragment(Fragment fragment) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.fragment_container, fragment);
+        fragmentTransaction.commit();
+    }
 }

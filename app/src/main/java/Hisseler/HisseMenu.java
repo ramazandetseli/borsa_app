@@ -1,16 +1,18 @@
 package Hisseler;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -22,218 +24,178 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-
-
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import ara.AraMenu;
-
 import ara.PriceService;
 import ara.hisseDetay;
 
-@SuppressLint("ResourceAsColor")
-public class HisseMenu extends AppCompatActivity {
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
-    String uid = FirebaseAuth.getInstance().getUid();
-    TextView tvBalance;
-
-    Button islemMenuGit;
-    RecyclerView recyclerView;
-
-    ArrayList<hisseGorunum> hisseList = new ArrayList<>();
-    hisseGorunumAdapter adapter;
-
-    ProgressBar progressBar;
-
-    private Double nakit;
-    TextView totalKarZarar;
+public class HisseMenu extends Fragment {
+    private FirebaseFirestore db;
+    private FirebaseAuth mAuth;
+    private TextView tvBalance, totalKarZarar;
+    private Button islemMenuGit;
+    private RecyclerView recyclerView;
+    private ArrayList<hisseGorunum> hisseList = new ArrayList<>();
+    private hisseGorunumAdapter adapter;
+    private ProgressBar progressBar;
+    private Double nakit = 0.0;
     private double plusBakiye = 0.0;
-    LinearLayout bakiyeDetay;
+    private LinearLayout bakiyeDetay;
 
-
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.activity_hisse_menu, container, false);
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_hisse_menu);
-        islemMenuGit=findViewById(R.id.btnIslemMenuGit);
-        totalKarZarar=findViewById(R.id.karZararTable);
-        bakiyeDetay=findViewById(R.id.bakiyeDetayGor);
-        MaterialToolbar toolbar = findViewById(R.id.backHissePortfoyden);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        islemMenuGit.setOnClickListener(view -> {
-            Intent intent=new Intent(this, AraMenu.class);
-            startActivity(intent);
+        db = FirebaseFirestore.getInstance();
+        mAuth = FirebaseAuth.getInstance();
+
+        islemMenuGit = view.findViewById(R.id.btnIslemMenuGit);
+        totalKarZarar = view.findViewById(R.id.karZararTable);
+        bakiyeDetay = view.findViewById(R.id.bakiyeDetayGor);
+        MaterialToolbar toolbar = view.findViewById(R.id.backHissePortfoyden);
+        progressBar = view.findViewById(R.id.progressBar);
+        tvBalance = view.findViewById(R.id.bakiyeHisseMenu);
+        recyclerView = view.findViewById(R.id.recyclerView);
+
+        // Toolbar geri butonu (Fragment olduğu için finish yerine activity'ye sorabiliriz)
+        toolbar.setNavigationOnClickListener(v -> {
+            if (getActivity() != null) getActivity().onBackPressed();
         });
 
-        progressBar=findViewById(R.id.progressBar);
-        progressBar.setVisibility(View.VISIBLE);
+        bakiyeDetay.setOnClickListener(v -> showBottomSheet());
 
-
-        setSupportActionBar(toolbar);
-        toolbar.setNavigationOnClickListener(v -> finish());
-        tvBalance=findViewById(R.id.bakiyeHisseMenu);
-
-
-
-        bakiyeDetay.setOnClickListener(view -> {
-            showBottomSheet();
-        });
-
-
-        recyclerView = findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new hisseGorunumAdapter(hisseList);
         recyclerView.setAdapter(adapter);
 
+        // Tıklama olaylarını bağla
+        adapter.setOnHisseClickListener(hisse -> {
+            if (getContext() != null) {
+                Intent intent = new Intent(getContext(), hisseDetay.class);
+                intent.putExtra("symbol", hisse.symbol);
+                intent.putExtra("maliyet", hisse.ortalamaFiyat);
+                intent.putExtra("lot", hisse.lotValue);
+                intent.putExtra("getiri", hisse.karZarar() * hisse.lotValue);
+                startActivity(intent);
+            }
+        });
 
-        loadPortfolio();
+        loadInitialData();
     }
-    private void loadPortfolio() {
-        progressBar.setVisibility(View.VISIBLE);
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+    private void loadInitialData() {
+        FirebaseUser user = mAuth.getCurrentUser();
         if (user == null) return;
 
-        String uid2 = user.getUid();
+        progressBar.setVisibility(View.VISIBLE);
+        
+        // Önce nakit bakiyeyi çek, sonra portföyü yükle
+        db.collection("users").document(user.getUid()).get()
+            .addOnSuccessListener(documentSnapshot -> {
+                if (!isAdded()) return;
+                
+                if (documentSnapshot.exists()) {
+                    nakit = documentSnapshot.getDouble("balance");
+                    if (nakit == null) nakit = 0.0;
+                }
+                
+                // Bakiyeyi çektikten sonra portföyü yükle
+                loadPortfolio(user.getUid());
+            })
+            .addOnFailureListener(e -> {
+                if (isAdded()) progressBar.setVisibility(View.GONE);
+            });
+    }
 
+    private void loadPortfolio(String uid) {
         db.collection("users")
-                .document(uid2)
+                .document(uid)
                 .collection("portfolio")
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
-
+                    if (!isAdded()) return;
+                    
                     hisseList.clear();
-
                     for (DocumentSnapshot doc : querySnapshot) {
                         String symbol = doc.getId();
                         Long lotVal = doc.getLong("lot");
                         Double avg = doc.getDouble("avgPrice");
-                        double guncelFiyat = -1;
-
-                        long lot = lotVal != null ? lotVal : 0;
-                        double avgPrice = avg != null ? avg : 0.0;
-
-                        hisseList.add(
-                                new hisseGorunum(symbol, lot, avgPrice,guncelFiyat)
-                        );
+                        hisseList.add(new hisseGorunum(symbol, lotVal != null ? lotVal : 0, avg != null ? avg : 0.0, -1));
                     }
+                    
+                    if (hisseList.isEmpty()) {
+                        updateUI();
+                        progressBar.setVisibility(View.GONE);
+                        return;
+                    }
+
+                    // Fiyatları çek
                     for (int i = 0; i < hisseList.size(); i++) {
                         int index = i;
                         hisseGorunum h = hisseList.get(i);
-
                         PriceService.getPrice(h.getSymbol(), new PriceService.PriceCallback() {
                             @Override
                             public void onPrice(double price) {
-
-                                // 0 veya negatif gelirse overwrite ETME
-                                if (price > 0) {
+                                if (price > 0 && isAdded()) {
                                     h.guncelFiyat = price;
                                     adapter.notifyItemChanged(index);
-
-                                    hesaplaKarZarar();
-                                    portfoyDegeri();
-                                    bakiye(); // 🔥 UI güncelle
+                                    updateUI();
                                 }
-
+                                // Tüm fiyatlar yüklendikten veya hata aldığında progress barı kapatmak için basit bir mantık:
+                                if (index == hisseList.size() - 1) {
+                                    progressBar.setVisibility(View.GONE);
+                                }
                             }
-
-                            @Override
-                            public void onError(Throwable t) {
-                                // sessiz geç
+                            @Override public void onError(Throwable t) {
+                                if (isAdded() && index == hisseList.size() - 1) progressBar.setVisibility(View.GONE);
                             }
                         });
                     }
-
-                    adapter = new hisseGorunumAdapter(hisseList);
-                    recyclerView.setAdapter(adapter);
-
-                    adapter.setOnHisseClickListener(hisse -> {
-                        Intent intent = new Intent(HisseMenu.this, hisseDetay.class);
-                        intent.putExtra("symbol", hisse.symbol);
-                        intent.putExtra("maliyet", hisse.ortalamaFiyat);
-                        intent.putExtra("lot",hisse.lotValue);
-                        intent.putExtra("getiri",hisse.karZarar()*hisse.lotValue);
-                        startActivity(intent);
-                    });
-
-                    adapter.notifyDataSetChanged();
-                    progressBar.setVisibility(View.GONE);
-
-
-
-                });
-
-
-    }
-    private void bakiye(){
-        db.collection("users").document(uid).get()
-                .addOnSuccessListener(documentSnapshot -> {
-
-                    if(!documentSnapshot.exists()) return;
-
-                    nakit = documentSnapshot.getDouble("balance");
-                    if (nakit == null) nakit = 0.0;
-
-                    double toplamVarlik = nakit + plusBakiye;
-
-                    NumberFormat format = NumberFormat.getNumberInstance(new Locale("tr", "TR"));
-                    format.setMinimumFractionDigits(2);
-                    format.setMaximumFractionDigits(2);
-
-                    tvBalance.setText(format.format(toplamVarlik) + " ₺");
+                })
+                .addOnFailureListener(e -> {
+                    if (isAdded()) progressBar.setVisibility(View.GONE);
                 });
     }
 
+    private void updateUI() {
+        if (!isAdded()) return;
 
-    private void hesaplaKarZarar(){
-    double toplam = 0;
-    for (hisseGorunum h : hisseList) {
-        if (h.guncelFiyat > 0) {
-            toplam += (h.guncelFiyat - h.ortalamaFiyat) * h.lotValue;
-        }
-    }
-    NumberFormat format = NumberFormat.getNumberInstance(new Locale("tr", "TR"));
-    format.setMinimumFractionDigits(2);
-    format.setMaximumFractionDigits(2);
-
-    totalKarZarar.setText(format.format(toplam) + " ₺");
-        if (toplam > 0) {
-            totalKarZarar.setTextColor(
-                    getResources().getColor(android.R.color.holo_green_dark)
-            );
-
-        } else if (toplam < 0) {
-            totalKarZarar.setTextColor(
-                    getResources().getColor(android.R.color.holo_red_dark)
-            );
-
-        } else {
-            totalKarZarar.setTextColor(
-                    getResources().getColor(android.R.color.darker_gray)
-            );
-        }
-
-
-
-    }
-
-    private double portfoyDegeri(){
-        double toplam = 0;
+        double toplamKarZararVal = 0;
+        double toplamPortfoyDegeri = 0;
 
         for (hisseGorunum h : hisseList) {
             if (h.guncelFiyat > 0) {
-                toplam += h.guncelFiyat * h.lotValue;
+                toplamKarZararVal += (h.guncelFiyat - h.ortalamaFiyat) * h.lotValue;
+                toplamPortfoyDegeri += h.guncelFiyat * h.lotValue;
             }
         }
 
-        plusBakiye = toplam;
-        return toplam;
+        plusBakiye = toplamPortfoyDegeri;
+        double toplamVarlik = nakit + plusBakiye;
+
+        NumberFormat format = NumberFormat.getNumberInstance(new Locale("tr", "TR"));
+        format.setMinimumFractionDigits(2);
+        format.setMaximumFractionDigits(2);
+
+        tvBalance.setText(format.format(toplamVarlik) + " ₺");
+        totalKarZarar.setText(format.format(toplamKarZararVal) + " ₺");
+
+        if (toplamKarZararVal > 0) totalKarZarar.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
+        else if (toplamKarZararVal < 0) totalKarZarar.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+        else totalKarZarar.setTextColor(getResources().getColor(android.R.color.darker_gray));
     }
+
     private void showBottomSheet() {
-        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(this);
+        if (getContext() == null) return;
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(getContext());
         View view = getLayoutInflater().inflate(R.layout.bottomsheet_portfoy, null);
 
         TextView tvTotal = view.findViewById(R.id.tvBottomTotal);
@@ -244,13 +206,11 @@ public class HisseMenu extends AppCompatActivity {
         format.setMinimumFractionDigits(2);
         format.setMaximumFractionDigits(2);
 
-        tvTotal.setText("Toplam: " + format.format(plusBakiye+nakit) + " ₺");
+        tvTotal.setText("Toplam: " + format.format(plusBakiye + nakit) + " ₺");
         tvKarZarar.setText("Kar/Zarar: " + totalKarZarar.getText());
         tvCash.setText("Nakit: " + format.format(nakit) + " ₺");
 
         bottomSheetDialog.setContentView(view);
         bottomSheetDialog.show();
     }
-
-
 }

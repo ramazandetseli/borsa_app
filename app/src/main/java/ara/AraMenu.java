@@ -6,14 +6,17 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 
 import com.google.android.material.appbar.MaterialToolbar;
 
@@ -25,29 +28,37 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class AraMenu extends AppCompatActivity {
-
+public class AraMenu extends Fragment {
 
     EditText etSearch;
     RecyclerView rvList;
     hisseAdapter adapter;
     ProgressBar progressBar;
+
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.activity_ara_menu, container, false);
+    }
 
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ara_menu);
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        progressBar = findViewById(R.id.progressBar);
+        progressBar = view.findViewById(R.id.progressBar);
         progressBar.setVisibility(View.VISIBLE);
 
-        MaterialToolbar toolbar = findViewById(R.id.backMenuAramadan);
-        setSupportActionBar(toolbar);
-        toolbar.setNavigationOnClickListener(v -> finish());
+        MaterialToolbar toolbar = view.findViewById(R.id.backMenuAramadan);
+        // Fragment içinde toolbar ayarı
+        toolbar.setNavigationOnClickListener(v -> {
+            if (getActivity() != null) {
+                getActivity().onBackPressed();
+            }
+        });
 
-        etSearch = findViewById(R.id.etSearch);
-        rvList = findViewById(R.id.rvList);
-        rvList.setLayoutManager(new LinearLayoutManager(this));
+        etSearch = view.findViewById(R.id.etSearch);
+        rvList = view.findViewById(R.id.rvList);
+        rvList.setLayoutManager(new LinearLayoutManager(getContext()));
 
         FinnhubApi api = ApiClient.getClient().create(FinnhubApi.class);
 
@@ -56,10 +67,10 @@ public class AraMenu extends AppCompatActivity {
                     @Override
                     public void onResponse(Call<List<Hisseler.hisseGorunum>> call,
                                            Response<List<Hisseler.hisseGorunum>> response) {
+                        if (!isAdded()) return;
                         progressBar.setVisibility(View.GONE);
 
                         if (response.isSuccessful() && response.body() != null) {
-
                             ArrayList<Hisseler.hisseGorunum> liste = new ArrayList<>();
                             for (Hisseler.hisseGorunum h : response.body()) {
                                 liste.add(new Hisseler.hisseGorunum(h.symbol, h.name));
@@ -69,7 +80,7 @@ public class AraMenu extends AppCompatActivity {
                             rvList.setAdapter(adapter);
 
                             adapter.setOnHisseClickListener(hisse -> {
-                                Intent intent = new Intent(AraMenu.this, hisseDetay.class);
+                                Intent intent = new Intent(getContext(), hisseDetay.class);
                                 intent.putExtra("symbol", hisse.symbol);
                                 intent.putExtra("name", hisse.name);
                                 startActivity(intent);
@@ -85,19 +96,12 @@ public class AraMenu extends AppCompatActivity {
                                 }
                             });
                         }
-                        //tıklanma olayı
-
-
                     }
 
                     @Override
                     public void onFailure(Call<List<hisseGorunum>> call, Throwable t) {
-
+                        if (isAdded()) progressBar.setVisibility(View.GONE);
                     }
-
-
                 });
-
-
     }
 }
