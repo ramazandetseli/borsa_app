@@ -46,9 +46,6 @@ public class hisseSatisActivity extends AppCompatActivity {
         txttotal = findViewById(R.id.txtToplam);
         stnSatBtn=findViewById(R.id.btnSell);
         stnSatBtn.setEnabled(false);
-        MaterialToolbar toolbar = findViewById(R.id.toolbarSatis);
-        setSupportActionBar(toolbar);
-        toolbar.setNavigationOnClickListener(v -> finish());
         // Intent verileri
         symbol = getIntent().getStringExtra("symbol");
         price = getIntent().getDoubleExtra("price", 0.0);

@@ -88,9 +88,9 @@ public class ProfilMenu extends Fragment {
             if (getActivity() != null) getActivity().onBackPressed();
         });
         logoutButton.setOnClickListener(v -> signOut());
-        
+
         menuIslemGecmisi.setOnClickListener(v -> startActivity(new Intent(getContext(), IslemGecmisiActivity.class)));
-        
+
         // Portföy tıklandığında yine aynı activity içinde kalmak isteyebilirsin.
         // Ama şimdilik mevcut mantığı koruyorum:
         menuPortfoy.setOnClickListener(v -> {

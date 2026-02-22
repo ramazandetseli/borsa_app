@@ -9,6 +9,7 @@ android {
     compileSdk = 36
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
     defaultConfig {
         applicationId = "com.example.borsa_app"
@@ -18,6 +19,12 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField(
+            "String",
+            "FINNHUB_API_KEY",
+            "\"${project.property("FINNHUB_API_KEY")}\""
+        )
     }
 
     buildTypes {
@@ -33,6 +40,8 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
+
 
 }
 

@@ -57,7 +57,7 @@ public class HisseMenu extends Fragment {
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
 
-        islemMenuGit = view.findViewById(R.id.btnIslemMenuGit);
+
         totalKarZarar = view.findViewById(R.id.karZararTable);
         bakiyeDetay = view.findViewById(R.id.bakiyeDetayGor);
         MaterialToolbar toolbar = view.findViewById(R.id.backHissePortfoyden);

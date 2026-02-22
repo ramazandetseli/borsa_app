@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
             Fragment selectedFragment = null;
             int itemId = item.getItemId();
 
-            if (itemId == R.id.nav_hisseler) {
+            if (itemId == R.id.nav_hisseler ) {
                 selectedFragment = new HisseMenu();
             } else if (itemId == R.id.nav_ara) {
                 selectedFragment = new AraMenu();

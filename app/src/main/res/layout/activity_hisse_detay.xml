@@ -1,33 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="ara.hisseDetay">
+    android:background="#F4F6F9">
 
-    <!-- 🔝 TOOLBAR -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/backHisseDetay"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingTop="12dp"
-        android:paddingBottom="8dp"
-        android:background="?attr/colorPrimary"
+        android:backgroundTint="#1565C0"
+        android:elevation="6dp"
+        app:title="Hisse Detay"
+        app:titleCentered="true"
+        app:titleTextColor="@android:color/white"
+        app:navigationIcon="@drawable/baseline_arrow_back_24"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:navigationIcon="@drawable/baseline_arrow_back_24"
-        app:titleTextColor="@android:color/white"
-        app:title="Geri Dön"
-        android:backgroundTint="#1E88E5"/>
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-
-
-    <!-- 📜 SCROLLABLE CONTENT -->
     <ScrollView
-        android:id="@+id/scrollView2"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintTop_toBottomOf="@id/backHisseDetay"
@@ -179,35 +173,41 @@
 
         </LinearLayout>
 
-
     </ScrollView>
-    <!-- ⬇️ ALT SABİT BAR -->
+
     <LinearLayout
         android:id="@+id/bottomLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="8dp"
+        android:padding="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        >
+        app:layout_constraintEnd_toEndOf="parent">
+
         <Button
             android:id="@+id/btnSell"
             android:layout_width="0dp"
-            android:layout_height="50dp"
+            android:layout_height="56dp"
             android:layout_weight="1"
-            android:text="SATIŞ"
-            android:backgroundTint="#E53935"/>
+            android:text="SAT"
+            android:textStyle="bold"
+            android:backgroundTint="#E53935"
+            app:cornerRadius="18dp"/>
+
+        <Space
+            android:layout_width="12dp"
+            android:layout_height="wrap_content"/>
+
         <Button
             android:id="@+id/btnBuy"
             android:layout_width="0dp"
-            android:layout_height="50dp"
+            android:layout_height="56dp"
             android:layout_weight="1"
-            android:text="ALIŞ"
-            android:backgroundTint="#1E88E5"
-            />
-
-
+            android:text="AL"
+            android:textStyle="bold"
+            android:backgroundTint="#2E7D32"
+            app:cornerRadius="18dp"/>
     </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

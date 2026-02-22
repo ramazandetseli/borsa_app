@@ -1,5 +1,6 @@
 package ara;
 
+import com.example.borsa_app.BuildConfig;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -16,13 +17,19 @@ public class PriceService {
 
 
     public static void getPrice(String symbol, PriceCallback callback) {
-        api.getQuote(symbol, "d5kb0j9r01qjaedu5jigd5kb0j9r01qjaedu5jj0")
+
+        api.getQuote(symbol, BuildConfig.FINNHUB_API_KEY)
                 .enqueue(new Callback<QuoteResponse>() {
+
                     @Override
                     public void onResponse(Call<QuoteResponse> call,
                                            Response<QuoteResponse> response) {
+
                         if (response.isSuccessful() && response.body() != null) {
                             callback.onPrice(response.body().currentPrice);
+                        } else {
+                            callback.onError(
+                                    new Exception("API response error"));
                         }
                     }
 

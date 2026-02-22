@@ -5,14 +5,14 @@ import retrofit2.http.GET;
 import retrofit2.http.Query;
 
 public interface FinnhubApi {
-    @GET("api/v1/stock/symbol")
+    @GET("stock/symbol")
     Call<List<Hisseler.hisseGorunum>> getStocks(
             @Query("exchange") String exchange,
             @Query("token") String apiKey
     );
 
 
-    @GET("api/v1/quote")
+    @GET("quote")
     Call<QuoteResponse> getQuote(
             @Query("symbol") String symbol,
             @Query("token") String apiKey

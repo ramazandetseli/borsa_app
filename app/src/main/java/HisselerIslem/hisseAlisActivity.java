@@ -28,7 +28,7 @@ public class hisseAlisActivity extends AppCompatActivity {
     String symbol;
     double price;
 
-    TextView hisseName, value, txttotal;
+    TextView hisseName, value, txttotal,txtBakiye;
     EditText lotSayisi;
 
     Button stnAlBtn;
@@ -44,6 +44,7 @@ public class hisseAlisActivity extends AppCompatActivity {
         value = findViewById(R.id.txtFiyat);
         lotSayisi = findViewById(R.id.edtLot);
         txttotal = findViewById(R.id.txtToplam);
+        txtBakiye=findViewById(R.id.bakiyeTxt);
         stnAlBtn = findViewById(R.id.btnBuy);
         stnAlBtn.setEnabled(false);
         MaterialToolbar toolbar = findViewById(R.id.toolbarAlis);
@@ -55,6 +56,7 @@ public class hisseAlisActivity extends AppCompatActivity {
 
         hisseName.setText(symbol);
         value.setText(price + " ₺");
+
 
         lotSayisi.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -83,9 +85,29 @@ public class hisseAlisActivity extends AppCompatActivity {
                 }
             }
         });
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            String uid = user.getUid();
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+            db.collection("users")
+                    .document(uid)
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+
+                        Double balance = documentSnapshot.getDouble("balance");
+
+                        if (balance == null) balance = 0.0;
+
+                        txtBakiye.setText("Bakiye: " + String.format("%,.2f", balance) + " ₺");
+                    })
+                    .addOnFailureListener(e -> {
+                        txtBakiye.setText("Bakiye alınamadı");
+                    });
+        }
 
         stnAlBtn.setOnClickListener(view -> {
-            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
             if (user == null) {
                 Toast.makeText(this, "Lütfen giriş yapın", Toast.LENGTH_SHORT).show();
                 return;
